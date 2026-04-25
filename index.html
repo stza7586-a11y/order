@@ -2,67 +2,74 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>秒级动态订单号</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单查询系统</title>
     <style>
-        .order-box {
-            padding: 25px;
-            border: 2px dashed #28a745; /* 绿色边框表示活跃 */
-            display: inline-block;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 32px;
-            font-weight: bold;
-            background-color: #f0fff4;
-            border-radius: 12px;
-            transition: all 0.2s;
-            color: #2d3436;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
         }
-        .order-box:hover { background-color: #dcffe4; transform: scale(1.02); }
-        .order-box:active { transform: scale(0.98); }
-        .hint { color: #666; font-size: 14px; margin-top: 15px; }
-        #status { color: #28a745; font-size: 14px; display: block; margin-bottom: 10px; font-weight: normal; }
+        .order-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        .order-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 16px;
+            color: #333;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        h2 {
+            color: #2c3e50;
+        }
     </style>
 </head>
 <body>
 
-    <div class="order-box" id="orderContainer" onclick="copyOrder()">
-        <span id="status">● 正在实时生成每秒唯一编号</span>
-        订单号：<span id="orderNumber">000000000000</span>
+    <div class="order-container">
+        <h2>当前实时订单 (14个)</h2>
+        <div id="orderList"></div>
     </div>
-    <p class="hint">（点击上方绿色区域直接复制，号码每秒自动跳动）</p>
 
     <script>
-        function updateOrder() {
-            const now = new Date();
-            
-            // 构造12位纯数字：年(后2位)+月+日+时+分+秒
-            // 比如 2026年04月15日 23:58:10 -> 260415235810
-            const yy = String(now.getFullYear()).slice(-2);
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            const hh = String(now.getHours()).padStart(2, '0');
-            const min = String(now.getMinutes()).padStart(2, '0');
-            const ss = String(now.getSeconds()).padStart(2, '0');
-
-            const newOrderId = yy + mm + dd + hh + min + ss;
-            document.getElementById('orderNumber').innerText = newOrderId;
+        // 生成随机订单号的函数
+        function generateOrder() {
+            const prefix = "ORD";
+            const date = new Date().getTime().toString().slice(-8);
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return prefix + date + random;
         }
 
-        function copyOrder() {
-            const num = document.getElementById('orderNumber').innerText;
-            navigator.clipboard.writeText(num).then(() => {
-                alert('已复制当前秒级的订单号：' + num);
-            }).catch(err => {
-                alert('复制失败，请手动选择复制');
-            });
+        // 核心修改点：这里循环 14 次，生成 14 个订单
+        function updateOrders() {
+            const listElement = document.getElementById('orderList');
+            listElement.innerHTML = ''; // 清空旧列表
+
+            for (let i = 0; i < 14; i++) {
+                const orderId = generateOrder();
+                const div = document.createElement('div');
+                div.className = 'order-item';
+                div.innerText = `订单号: ${orderId}`;
+                listElement.appendChild(div);
+            }
         }
 
-        // 每1000毫秒（1秒）强制刷新一次数字
-        setInterval(updateOrder, 1000);
-        
-        // 页面打开瞬间先运行一次，避免1秒空白
-        updateOrder();
+        // 初始加载
+        updateOrders();
+
+        // 每秒刷新一次，让号码动起来
+        setInterval(updateOrders, 1000);
     </script>
 </body>
 </html>
