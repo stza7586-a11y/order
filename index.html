@@ -3,73 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>订单查询系统</title>
+    <title>订单管理系统</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { text-align: center; color: #1a73e8; font-size: 20px; margin-bottom: 20px; border-bottom: 2px solid #e8f0fe; padding-bottom: 10px; }
+        .order-item { 
+            padding: 12px; margin: 8px 0; border: 1px solid #eee; border-radius: 6px; 
+            cursor: pointer; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center;
         }
-        .order-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 500px;
-        }
-        .order-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            font-size: 16px;
-            color: #333;
-        }
-        .order-item:last-child {
-            border-bottom: none;
-        }
-        h2 {
-            color: #2c3e50;
+        .order-item:hover { background-color: #e8f0fe; border-color: #1a73e8; transform: scale(1.02); }
+        .order-item:active { background-color: #d2e3fc; }
+        .copy-hint { font-size: 12px; color: #1a73e8; font-weight: bold; }
+        #toast { 
+            position: fixed; top: 20px; background: #323232; color: white; padding: 10px 20px; 
+            border-radius: 5px; display: none; z-index: 100; 
         }
     </style>
 </head>
 <body>
 
-    <div class="order-container">
-        <h2>当前实时订单 (14个)</h2>
+    <div id="toast">已成功复制到剪贴板</div>
+
+    <div class="card">
+        <h2>实时订单列表 (14个 - 点击复制)</h2>
         <div id="orderList"></div>
     </div>
 
     <script>
-        // 生成随机订单号的函数
-        function generateOrder() {
-            const prefix = "ORD";
-            const date = new Date().getTime().toString().slice(-8);
-            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            return prefix + date + random;
+        // 显示复制成功的提示
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 1500);
         }
 
-        // 核心修改点：这里循环 14 次，生成 14 个订单
+        // 复制函数
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast();
+            });
+        }
+
+        // 生成不重复的订单号集
         function updateOrders() {
             const listElement = document.getElementById('orderList');
-            listElement.innerHTML = ''; // 清空旧列表
+            const orders = new Set(); // 使用 Set 确保这 14 个绝对不重复
+            
+            // 循环直到凑满 14 个不同的号码
+            while(orders.size < 14) {
+                const datePart = new Date().getTime().toString().slice(-6);
+                const randomPart = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                orders.add("ORD" + datePart + randomPart);
+            }
 
-            for (let i = 0; i < 14; i++) {
-                const orderId = generateOrder();
+            listElement.innerHTML = '';
+            orders.forEach(orderId => {
                 const div = document.createElement('div');
                 div.className = 'order-item';
-                div.innerText = `订单号: ${orderId}`;
+                div.innerHTML = `<span>订单号: <strong>${orderId}</strong></span> <span class="copy-hint">点击复制</span>`;
+                div.onclick = () => copyText(orderId);
                 listElement.appendChild(div);
-            }
+            });
         }
 
-        // 初始加载
+        // 初始化
         updateOrders();
-
-        // 每秒刷新一次，让号码动起来
-        setInterval(updateOrders, 1000);
+        // 如果你需要它每秒自动变，取消下面这一行的注释：
+        // setInterval(updateOrders, 1000); 
     </script>
 </body>
 </html>
