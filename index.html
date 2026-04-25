@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>订单生成器</title>
+    <title>14位订单生成器</title>
     <style>
         body {
             font-family: sans-serif;
@@ -18,31 +18,25 @@
             border-radius: 15px;
             padding: 15px 30px;
             margin: 10px;
-            width: 320px;
+            width: 380px; /* 稍微加宽一点以适应14位数字 */
             text-align: center;
             cursor: pointer;
             transition: background 0.2s;
-            position: relative;
         }
         .order-box:hover {
             background-color: #f0fdf4;
         }
         .label {
             color: #4CAF50;
-            font-size: 18px;
+            font-size: 16px;
             margin-bottom: 5px;
             display: block;
         }
         .number {
-            font-size: 32px;
+            font-size: 30px;
             font-weight: bold;
             color: #333;
-            letter-spacing: 2px;
-        }
-        .hint {
-            color: #888;
-            font-size: 14px;
-            margin-top: 20px;
+            letter-spacing: 1px;
         }
         #toast {
             position: fixed;
@@ -59,13 +53,12 @@
 
     <div id="toast">复制成功</div>
     <div id="container"></div>
-    <p class="hint">(点击上方绿色区域直接复制，号码每秒自动跳动)</p>
+    <p style="color: #888; font-size: 14px;">(点击上方区域复制，14位编号每秒自动跳动)</p>
 
     <script>
         const container = document.getElementById('container');
         const toast = document.getElementById('toast');
 
-        // 复制功能
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 toast.style.display = 'block';
@@ -73,17 +66,23 @@
             });
         }
 
-        // 生成纯数字编号 (类似你图1的格式)
-        function generateNumber() {
+        // 生成 14 位订单号: yyMMddHHmmss + 2位随机数
+        function generate14DigitOrder() {
             const now = new Date();
-            const datePart = now.getFullYear().toString().slice(-2) + 
-                             (now.getMonth() + 1).toString().padStart(2, '0') + 
-                             now.getDate().toString().padStart(2, '0');
-            const randomPart = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-            return datePart + randomPart;
+            const yy = now.getFullYear().toString().slice(-2);
+            const mm = (now.getMonth() + 1).toString().padStart(2, '0');
+            const dd = now.getDate().toString().padStart(2, '0');
+            const hh = now.getHours().toString().padStart(2, '0');
+            const min = now.getMinutes().toString().padStart(2, '0');
+            const ss = now.getSeconds().toString().padStart(2, '0');
+            
+            // 补足最后 2 位随机数，达到 14 位
+            const randomPart = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+            
+            return yy + mm + dd + hh + min + ss + randomPart;
         }
 
-        // 初始化 14 个框
+        // 依然生成 14 个展示框，每个框内都是 14 位的号码
         for (let i = 0; i < 14; i++) {
             const box = document.createElement('div');
             box.className = 'order-box';
@@ -98,22 +97,14 @@
             container.appendChild(box);
         }
 
-        // 每秒更新所有 14 个号码，并确保不重复
-        function updateAllNumbers() {
-            const usedNumbers = new Set();
+        function updateAll() {
             for (let i = 0; i < 14; i++) {
-                let newNum;
-                do {
-                    newNum = generateNumber();
-                } while (usedNumbers.has(newNum)); // 确保这14个号互不相同
-                
-                usedNumbers.add(newNum);
-                document.getElementById(`num-${i}`).innerText = newNum;
+                document.getElementById(`num-${i}`).innerText = generate14DigitOrder();
             }
         }
 
-        setInterval(updateAllNumbers, 1000);
-        updateAllNumbers();
+        setInterval(updateAll, 1000);
+        updateAll();
     </script>
 </body>
 </html>
