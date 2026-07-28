@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>14-Digit Order Generator</title>
+    <title>Order ID Generator</title>
     <!-- Google Fonts & FontAwesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -31,16 +31,20 @@
             min-height: 100vh;
         }
 
-        /* Top Bar & Language Selector */
+        /* Top Bar & Controls */
         .top-nav {
             width: 100%;
-            max-width: 900px;
+            max-width: 600px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-        .lang-select {
+        .controls-group {
+            display: flex;
+            gap: 10px;
+        }
+        .select-box {
             background: var(--card-bg);
             color: var(--text-color);
             border: 1px solid #334155;
@@ -48,9 +52,10 @@
             border-radius: 8px;
             cursor: pointer;
             outline: none;
+            font-size: 14px;
         }
 
-        /* Modern Auth Card */
+        /* Auth Card */
         .auth-container {
             background: var(--card-bg);
             border: 1px solid #334155;
@@ -110,7 +115,7 @@
         #user-bar {
             display: none;
             width: 100%;
-            max-width: 900px;
+            max-width: 600px;
             background: var(--card-bg);
             border: 1px solid #334155;
             padding: 12px 20px;
@@ -124,29 +129,37 @@
         .avatar { width: 36px; height: 36px; border-radius: 50%; }
         .logout-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
 
-        /* Generator Grid */
-        #main-app { display: none; width: 100%; max-width: 900px; flex-direction: column; align-items: center; }
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 15px;
+        /* Generator Vertical Layout (1 Column) */
+        #main-app { 
+            display: none; 
+            width: 100%; 
+            max-width: 600px; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .vertical-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             width: 100%;
         }
         .order-card {
             background: var(--card-bg);
             border: 1px dashed var(--accent);
             border-radius: 12px;
-            padding: 15px;
+            padding: 16px;
             text-align: center;
             cursor: pointer;
             transition: transform 0.2s, background 0.2s;
+            width: 100%;
+            box-sizing: border-box;
         }
         .order-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             background: #243347;
         }
-        .card-label { color: var(--accent); font-size: 13px; margin-bottom: 8px; display: block; }
-        .card-number { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: #fff; }
+        .card-label { color: var(--accent); font-size: 13px; margin-bottom: 6px; display: block; }
+        .card-number { font-size: 24px; font-weight: 700; letter-spacing: 2px; color: #fff; }
 
         #toast {
             position: fixed;
@@ -183,12 +196,12 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // Dictionary (Chinese & English)
+        // Dictionary (Chinese & English only)
         const i18n = {
             zh: {
-                title: "14位订单生成器",
+                titleSuffix: "位订单生成器",
                 loginTitle: "登录账号",
-                loginDesc: "请登录以使用14位订单号生成系统",
+                loginDesc: "请登录以使用订单号生成系统",
                 emailPlaceholder: "邮箱地址",
                 passPlaceholder: "密码",
                 loginBtn: "登录",
@@ -197,13 +210,13 @@
                 toggleSignUp: "没有账号？点击注册",
                 toggleLogin: "已有账号？点击登录",
                 logout: "退出登录",
-                liveLabel: "● 实时生成14位编号",
+                liveLabel: "● 实时生成编号",
                 clickCopy: "(点击上面卡片复制，每秒自动更新)",
                 copied: "复制成功！",
                 alertEmpty: "请输入邮箱和密码"
             },
             en: {
-                title: "14-Digit Order Generator",
+                titleSuffix: "-Digit Order Generator",
                 loginTitle: "Sign In",
                 loginDesc: "Please sign in to access the order generator",
                 emailPlaceholder: "Email Address",
@@ -214,7 +227,7 @@
                 toggleSignUp: "No account? Register here",
                 toggleLogin: "Have an account? Sign in",
                 logout: "Log Out",
-                liveLabel: "● Live 14-Digit Order ID",
+                liveLabel: "● Live Generated ID",
                 clickCopy: "(Click card to copy, updates every second)",
                 copied: "Copied successfully!",
                 alertEmpty: "Please fill in email and password"
@@ -223,11 +236,13 @@
 
         let currentLang = "zh";
         let isSignUpMode = false;
+        let currentDigits = 14;
 
         window.changeLanguage = function(lang) {
             currentLang = lang;
             const t = i18n[lang];
-            document.getElementById('page-title').innerText = t.title;
+            
+            document.getElementById('page-title').innerText = currentLang === 'zh' ? `${currentDigits}${t.titleSuffix}` : `${currentDigits}${t.titleSuffix}`;
             document.getElementById('auth-title').innerText = isSignUpMode ? t.signUpBtn : t.loginTitle;
             document.getElementById('auth-desc').innerText = t.loginDesc;
             document.getElementById('email-input').placeholder = t.emailPlaceholder;
@@ -240,6 +255,12 @@
             document.getElementById('toast').innerText = t.copied;
             
             document.querySelectorAll('.card-label').forEach(el => el.innerText = t.liveLabel);
+        };
+
+        window.changeDigits = function(digits) {
+            currentDigits = parseInt(digits);
+            window.changeLanguage(currentLang);
+            updateAll();
         };
 
         // DOM elements
@@ -256,7 +277,7 @@
             window.changeLanguage(currentLang);
         });
 
-        // Form Submit (Email/Pass)
+        // Form Submit
         submitBtn.addEventListener('click', () => {
             const email = emailInput.value;
             const pass = passInput.value;
@@ -299,17 +320,37 @@
 
     <div class="top-nav">
         <h3 id="page-title" style="margin:0;">14位订单生成器</h3>
-        <select class="lang-select" onchange="changeLanguage(this.value)">
-            <option value="zh">中文</option>
-            <option value="en">English</option>
-        </select>
+        <div class="controls-group">
+            <!-- Digits Selector (20 down to 8) -->
+            <select class="select-box" onchange="changeDigits(this.value)">
+                <option value="20">20 位 (Digits)</option>
+                <option value="19">19 位 (Digits)</option>
+                <option value="18">18 位 (Digits)</option>
+                <option value="17">17 位 (Digits)</option>
+                <option value="16">16 位 (Digits)</option>
+                <option value="15">15 位 (Digits)</option>
+                <option value="14" selected>14 位 (Digits)</option>
+                <option value="13">13 位 (Digits)</option>
+                <option value="12">12 位 (Digits)</option>
+                <option value="11">11 位 (Digits)</option>
+                <option value="10">10 位 (Digits)</option>
+                <option value="9">9 位 (Digits)</option>
+                <option value="8">8 位 (Digits)</option>
+            </select>
+
+            <!-- Language Selector -->
+            <select class="select-box" onchange="changeLanguage(this.value)">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+            </select>
+        </div>
     </div>
 
     <!-- Auth Form Card -->
     <div class="auth-container" id="auth-card">
         <div class="auth-header">
             <h2 id="auth-title">登录账号</h2>
-            <p id="auth-desc">请登录以使用14位订单号生成系统</p>
+            <p id="auth-desc">请登录以使用订单号生成系统</p>
         </div>
 
         <div class="input-group">
@@ -340,7 +381,7 @@
     <!-- Main Generator Dashboard -->
     <div id="main-app">
         <div id="toast">复制成功！</div>
-        <div class="grid-container" id="container"></div>
+        <div class="vertical-container" id="container"></div>
         <p id="footer-tip" style="color: var(--text-muted); font-size: 14px; margin-top: 20px;">(点击上面卡片复制，每秒自动更新)</p>
     </div>
 
@@ -355,7 +396,7 @@
             });
         }
 
-        function generate14DigitOrder() {
+        function generateCustomOrder(length) {
             const now = new Date();
             const yy = now.getFullYear().toString().slice(-2);
             const mm = (now.getMonth() + 1).toString().padStart(2, '0');
@@ -363,15 +404,28 @@
             const hh = now.getHours().toString().padStart(2, '0');
             const min = now.getMinutes().toString().padStart(2, '0');
             const ss = now.getSeconds().toString().padStart(2, '0');
-            const randomPart = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-            return yy + mm + dd + hh + min + ss + randomPart;
+            
+            // Base timestamp part (12 digits: YYMMDDHHMMSS)
+            let base = yy + mm + dd + hh + min + ss;
+
+            if (length <= 12) {
+                return base.slice(0, length);
+            } else {
+                const extraDigits = length - 12;
+                let randomPart = '';
+                for (let i = 0; i < extraDigits; i++) {
+                    randomPart += Math.floor(Math.random() * 10).toString();
+                }
+                return base + randomPart;
+            }
         }
 
+        // Render 14 Vertical Order Cards
         for (let i = 0; i < 14; i++) {
             const card = document.createElement('div');
             card.className = 'order-card';
             card.innerHTML = `
-                <span class="card-label">● 实时生成14位编号</span>
+                <span class="card-label">● 实时生成编号</span>
                 <div class="card-number" id="num-${i}">Loading...</div>
             `;
             card.onclick = function() {
@@ -382,9 +436,11 @@
         }
 
         function updateAll() {
+            const selectEl = document.querySelector('.select-box');
+            const digits = selectEl ? parseInt(selectEl.value) : 14;
             for (let i = 0; i < 14; i++) {
                 const el = document.getElementById(`num-${i}`);
-                if(el) el.innerText = generate14DigitOrder();
+                if(el) el.innerText = generateCustomOrder(digits);
             }
         }
 
