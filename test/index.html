@@ -192,21 +192,21 @@
         .logout-btn { background: #ef4444; }
         .logout-btn:hover { background: #dc2626; }
 
-        /* Modern Auth Card */
+        /* Modern Auth & Deposit Card */
         .auth-container, .deposit-container {
             background: var(--card-bg);
             border: 1px solid #334155;
             border-radius: 16px;
-            padding: 30px;
+            padding: 25px;
             width: 100%;
-            max-width: 420px;
+            max-width: 440px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             margin-top: 20px;
             box-sizing: border-box;
         }
-        .auth-header { text-align: center; margin-bottom: 25px; }
-        .auth-header h2 { margin: 0 0 10px 0; font-size: 24px; }
-        .auth-header p { color: var(--text-muted); font-size: 14px; margin: 0; }
+        .auth-header { text-align: center; margin-bottom: 20px; }
+        .auth-header h2 { margin: 0 0 8px 0; font-size: 22px; }
+        .auth-header p { color: var(--text-muted); font-size: 13px; margin: 0; }
 
         .input-group { margin-bottom: 15px; }
         .input-group input {
@@ -269,6 +269,7 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 12px;
+            margin-left: 5px;
         }
 
         /* Vertical Generator Layout */
@@ -311,7 +312,6 @@
         .card-number.locked {
             filter: blur(6px);
             opacity: 0.4;
-            pointer-events: none;
         }
 
         #toast {
@@ -332,9 +332,9 @@
             color: #000;
             font-size: 12px;
             font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin-bottom: 10px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
             text-align: center;
         }
         .footer-tip {
@@ -397,15 +397,15 @@
                 errInUse: "该邮箱已被注册！",
                 errWeak: "密码长度至少需要6位！",
                 errDefault: "登录失败，请重试！",
-                depositTitle: "充值/续费 USDT",
-                depositDesc: "您的账号未激活或使用期限已过期，请转账以继续使用。",
-                usdtAddrLabel: "USDT 接收地址 (BEP20/TRC20):",
+                depositTitle: "充值 / 续费 USDT",
+                depositDesc: "您的账号未激活或使用期限已过期，请完成充值以继续使用。",
+                usdtAddrLabel: "USDT Binance 接收地址 (BEP20):",
                 copyAddr: "复制",
-                uploadProof: "上传转账截图 (Proof)",
-                submitProofBtn: "提交审核",
-                pendingStatus: "等待管理员审核中...",
-                expiredAlert: "使用期限已过期或未激活！请先充值 USDT 并在管理员确认后继续使用。",
-                proofSubmitted: "截图已成功提交，请等待管理员审核！"
+                uploadProof: "上传转账截图凭证:",
+                submitProofBtn: "提交充值凭证",
+                pendingStatus: "⚠️ 账号状态：等待管理员审核确认...",
+                expiredAlert: "账号使用期限已过期或未激活！请先完成 USDT 充值并在管理员确认后继续使用。",
+                proofSubmitted: "充值凭证已提交，请等待管理员审核确认！"
             },
             en: {
                 titleSuffix: "-Digit Order Generator",
@@ -432,12 +432,12 @@
                 errWeak: "Password should be at least 6 characters!",
                 errDefault: "Authentication failed. Please try again.",
                 depositTitle: "Deposit / Renew USDT",
-                depositDesc: "Your account is not active or membership has expired. Please make a payment to continue.",
-                usdtAddrLabel: "USDT Deposit Address (BEP20/TRC20):",
+                depositDesc: "Your account is inactive or membership has expired. Please deposit USDT to continue.",
+                usdtAddrLabel: "USDT Binance Deposit Address (BEP20):",
                 copyAddr: "Copy",
-                uploadProof: "Upload Payment Screenshot",
+                uploadProof: "Upload Payment Screenshot Proof:",
                 submitProofBtn: "Submit Payment Proof",
-                pendingStatus: "Awaiting Owner Verification...",
+                pendingStatus: "⚠️ Status: Awaiting Owner Verification...",
                 expiredAlert: "Membership expired or inactive! Please deposit USDT and wait for approval.",
                 proofSubmitted: "Payment proof submitted successfully! Please wait for owner confirmation."
             }
@@ -516,6 +516,7 @@
             document.getElementById('deposit-desc').innerText = t.depositDesc;
             document.getElementById('usdt-label').innerText = t.usdtAddrLabel;
             document.getElementById('copy-addr-btn').innerText = t.copyAddr;
+            document.getElementById('proof-label').innerText = t.uploadProof;
             document.getElementById('submit-proof-btn').innerText = t.submitProofBtn;
             document.getElementById('status-badge').innerText = t.pendingStatus;
             
@@ -808,6 +809,7 @@
         </div>
 
         <button class="btn btn-primary" id="submit-btn">登录</button>
+
         <button class="btn btn-google" id="google-btn">
             <i class="fa-brands fa-google" style="color: #4285F4;"></i>
             <span id="google-text">使用 Google 账号登录</span>
@@ -816,51 +818,96 @@
         <div class="auth-toggle" id="toggle-auth">没有账号？点击注册</div>
     </div>
 
-    <!-- USDT Deposit & Approval Page -->
+    <!-- Deposit / Payment Section -->
     <div class="deposit-container" id="deposit-card">
-        <div class="status-badge" id="status-badge">等待管理员审核中...</div>
         <div class="auth-header">
-            <h2 id="deposit-title">充值/续费 USDT</h2>
-            <p id="deposit-desc">您的账号未激活或使用期限已过期，请转账以继续使用。</p>
+            <h2 id="deposit-title">充值 / 续费 USDT</h2>
+            <p id="deposit-desc">您的账号未激活或使用期限已过期，请完成充值以继续使用。</p>
         </div>
 
-        <p style="font-size: 13px; margin-bottom: 5px;" id="usdt-label">USDT 接收地址 (BEP20/TRC20):</p>
+        <div class="status-badge" id="status-badge">⚠️ 账号状态：等待管理员审核确认...</div>
+
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 5px;" id="usdt-label">USDT Binance 接收地址 (BEP20):</p>
         <div class="address-box">
             <span id="binance-address">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span>
             <button class="copy-btn" id="copy-addr-btn">复制</button>
         </div>
 
         <div class="input-group" style="margin-top: 15px;">
+            <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 6px;" id="proof-label">上传转账截图凭证:</label>
             <input type="file" id="proof-file" accept="image/*" style="padding: 8px;">
         </div>
-        <button class="btn btn-primary" id="submit-proof-btn">提交审核</button>
+
+        <button class="btn btn-primary" id="submit-proof-btn">提交充值凭证</button>
     </div>
 
-    <!-- Main Generator App Container -->
+    <!-- Main Generator App (15 Rows) -->
     <div id="main-app">
         <div class="vertical-container">
+            <!-- 15 Rows of Generators -->
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
-                <span class="card-number">--------------</span>
+                <span class="card-number locked">00000000000000</span>
             </div>
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
-                <span class="card-number">--------------</span>
+                <span class="card-number locked">00000000000000</span>
             </div>
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
-                <span class="card-number">--------------</span>
+                <span class="card-number locked">00000000000000</span>
             </div>
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
-                <span class="card-number">--------------</span>
+                <span class="card-number locked">00000000000000</span>
             </div>
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
-                <span class="card-number">--------------</span>
+                <span class="card-number locked">00000000000000</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number locked">00000000000000</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number locked">00000000000000</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number locked">00000000000000</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number locked">00000000000000</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number locked">00000000000000</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number locked">00000000000000</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number locked">00000000000000</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number locked">00000000000000</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number locked">00000000000000</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number locked">00000000000000</span>
             </div>
         </div>
-        <p class="footer-tip" id="footer-tip">(点击卡片复制，每秒自动更新)</p>
+
+        <div class="footer-tip" id="footer-tip">(点击卡片复制，每秒自动更新)</div>
     </div>
 
 </body>
