@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Generator</title>
+    <title id="page-title-tag">Order Generator</title>
     <!-- Google Fonts & FontAwesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -246,14 +246,6 @@
 
         /* Deposit / Payment Section */
         #deposit-card { display: none; }
-        .qr-placeholder {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            margin-bottom: 15px;
-        }
         .address-box {
             background: #0f172a;
             border: 1px dashed var(--accent);
@@ -345,6 +337,12 @@
             margin-bottom: 10px;
             text-align: center;
         }
+        .footer-tip {
+            margin-top: 15px;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+        }
     </style>
 
     <script type="module">
@@ -354,7 +352,7 @@
             createUserWithEmailAndPassword, signInWithEmailAndPassword 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
-            getFirestore, doc, getDoc, setDoc, updateDoc 
+            getFirestore, doc, getDoc, setDoc 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -372,7 +370,6 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // YOUR BINANCE USDT ADDRESS (BEP20 / TRC20)
         const MY_BINANCE_USDT_ADDRESS = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F";
 
         const i18n = {
@@ -391,8 +388,8 @@
                 switchAcc: "切换账号",
                 removePhoto: "移除头像",
                 fontSize: "字体大小",
-                liveLabelPrefix: "● 实时生成",
-                liveLabelSuffix: "位编号",
+                liveLabelPrefix: "● 实时生成 ",
+                liveLabelSuffix: " 位编号",
                 clickCopy: "(点击卡片复制，每秒自动更新)",
                 copied: "复制成功！",
                 alertEmpty: "请输入邮箱和密码",
@@ -400,7 +397,6 @@
                 errInUse: "该邮箱已被注册！",
                 errWeak: "密码长度至少需要6位！",
                 errDefault: "登录失败，请重试！",
-                // Deposit & Expired Messages
                 depositTitle: "充值/续费 USDT",
                 depositDesc: "您的账号未激活或使用期限已过期，请转账以继续使用。",
                 usdtAddrLabel: "USDT 接收地址 (BEP20/TRC20):",
@@ -435,7 +431,6 @@
                 errInUse: "Email is already registered!",
                 errWeak: "Password should be at least 6 characters!",
                 errDefault: "Authentication failed. Please try again.",
-                // Deposit & Expired Messages
                 depositTitle: "Deposit / Renew USDT",
                 depositDesc: "Your account is not active or membership has expired. Please make a payment to continue.",
                 usdtAddrLabel: "USDT Deposit Address (BEP20/TRC20):",
@@ -452,7 +447,41 @@
         window.selectedDigits = 14;
         let isSignUpMode = false;
         let currentUser = null;
-        let userStatus = "pending"; // pending, approved, expired
+        let userStatus = "pending";
+
+        window.generateRandomDigits = function(length) {
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += Math.floor(Math.random() * 10);
+            }
+            return result;
+        };
+
+        window.updateAllNumbers = function() {
+            const digits = window.selectedDigits;
+            document.querySelectorAll('.card-number').forEach(el => {
+                el.innerText = window.generateRandomDigits(digits);
+            });
+        };
+
+        // Auto update numbers every second
+        setInterval(() => {
+            if (userStatus === 'approved') {
+                window.updateAllNumbers();
+            }
+        }, 1000);
+
+        window.copyToClipboard = function(text) {
+            if(userStatus !== 'approved') {
+                alert(i18n[window.currentLang].expiredAlert);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 2000);
+            });
+        };
 
         window.getErrorMessage = function(code) {
             const t = i18n[window.currentLang];
@@ -483,7 +512,6 @@
             document.getElementById('footer-tip').innerText = t.clickCopy;
             document.getElementById('toast').innerText = t.copied;
 
-            // Deposit Elements
             document.getElementById('deposit-title').innerText = t.depositTitle;
             document.getElementById('deposit-desc').innerText = t.depositDesc;
             document.getElementById('usdt-label').innerText = t.usdtAddrLabel;
@@ -613,14 +641,12 @@
             }
         });
 
-        // Copy Address Button
         document.getElementById('copy-addr-btn').addEventListener('click', () => {
             navigator.clipboard.writeText(MY_BINANCE_USDT_ADDRESS).then(() => {
                 alert(i18n[window.currentLang].copied);
             });
         });
 
-        // Submit Proof Action
         document.getElementById('submit-proof-btn').addEventListener('click', async () => {
             const proofInput = document.getElementById('proof-file');
             if(!proofInput.files || proofInput.files.length === 0) {
@@ -638,7 +664,6 @@
             }
         });
 
-        // Font Size Slider
         const fontSlider = document.getElementById('font-size-slider');
         const fontSizeVal = document.getElementById('font-size-val');
 
@@ -656,7 +681,6 @@
             fontSizeVal.innerText = savedFontSize + 'px';
         }
 
-        // Firestore User Status Check
         async function checkUserSubscription(user) {
             const userRef = doc(db, "users", user.uid);
             const docSnap = await getDoc(userRef);
@@ -677,16 +701,12 @@
                 depositCard.style.display = 'none';
                 mainApp.style.display = 'flex';
                 
-                // Unlock numbers
                 document.querySelectorAll('.card-number').forEach(el => el.classList.remove('locked'));
+                window.updateAllNumbers();
             } else {
-                // Pending / Expired
                 authCard.style.display = 'none';
                 depositCard.style.display = 'block';
-                mainApp.style.display = 'flex';
-                
-                // Blur numbers
-                document.querySelectorAll('.card-number').forEach(el => el.classList.add('locked'));
+                mainApp.style.display = 'none';
             }
         }
 
@@ -707,17 +727,16 @@
                 profileContainer.style.display = 'none';
             }
         });
-
-        window.userStatus = function() { return userStatus; };
     </script>
 </head>
 <body>
+
+    <div id="toast">复制成功！</div>
 
     <div class="top-nav">
         <h3 id="page-title" style="margin:0;">14位订单生成器</h3>
         
         <div class="control-group">
-            <!-- Digits Selector -->
             <select class="select-box" onchange="changeDigits(this.value)">
                 <option value="20">20 Digits / 位</option>
                 <option value="19">19 Digits / 位</option>
@@ -729,18 +748,15 @@
                 <option value="13">13 Digits / 位</option>
             </select>
 
-            <!-- Language Switcher -->
             <select class="select-box" onchange="changeLanguage(this.value)">
                 <option value="zh">中文</option>
                 <option value="en">English</option>
             </select>
 
-            <!-- Profile Avatar with Dropdown -->
             <div class="user-dropdown-container" id="profile-container">
                 <div id="profile-btn" class="avatar-box">U</div>
                 
                 <div class="dropdown-menu" id="dropdown-menu">
-                    <!-- Avatar Upload & Info -->
                     <div class="avatar-upload-section">
                         <label for="avatar-upload" class="avatar-preview-wrapper" title="Click to change photo">
                             <div id="dropdown-avatar-img" class="dropdown-avatar-box">U</div>
@@ -749,14 +765,12 @@
                         <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                         <p class="user-email-text" id="user-email"></p>
                         
-                        <!-- Remove Photo Button -->
                         <button class="menu-btn remove-photo-btn" id="remove-photo-btn">
                             <i class="fa-solid fa-trash-can"></i>
                             <span id="remove-photo-text">移除头像</span>
                         </button>
                     </div>
 
-                    <!-- Font Size Setting -->
                     <div class="setting-item">
                         <div class="setting-label">
                             <span id="font-size-label">字体大小</span>
@@ -765,7 +779,6 @@
                         <input type="range" id="font-size-slider" class="slider-input" min="14" max="28" value="20">
                     </div>
 
-                    <!-- Actions -->
                     <button class="menu-btn" id="switch-acc-btn">
                         <i class="fa-solid fa-arrows-rotate"></i>
                         <span id="switch-acc-text">切换账号</span>
@@ -817,90 +830,38 @@
             <button class="copy-btn" id="copy-addr-btn">复制</button>
         </div>
 
-        <div class="input-group" style="margin-top: 20px;">
-            <p style="font-size: 13px; margin-bottom: 5px;">Upload Payment Screenshot:</p>
-            <input type="file" id="proof-file" accept="image/*">
+        <div class="input-group" style="margin-top: 15px;">
+            <input type="file" id="proof-file" accept="image/*" style="padding: 8px;">
         </div>
-
         <button class="btn btn-primary" id="submit-proof-btn">提交审核</button>
     </div>
 
-    <!-- Main Generator Dashboard -->
+    <!-- Main Generator App Container -->
     <div id="main-app">
-        <div id="toast">复制成功！</div>
-        <div class="vertical-container" id="container"></div>
-        <p id="footer-tip" style="color: var(--text-muted); font-size: 14px; margin-top: 20px;">(点击卡片复制，每秒自动更新)</p>
+        <div class="vertical-container">
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">--------------</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">--------------</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">--------------</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">--------------</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">--------------</span>
+            </div>
+        </div>
+        <p class="footer-tip" id="footer-tip">(点击卡片复制，每秒自动更新)</p>
     </div>
 
-    <script>
-        const container = document.getElementById('container');
-        const toast = document.getElementById('toast');
-
-        function copyToClipboard(text) {
-            if(window.userStatus && window.userStatus() !== 'approved') {
-                const isZh = window.currentLang === 'zh';
-                alert(isZh ? 
-                    "使用期限已过期或未激活！请先充值 USDT 并在管理员确认后继续使用。" : 
-                    "Membership expired or inactive! Please deposit USDT and wait for owner approval."
-                );
-                return;
-            }
-
-            navigator.clipboard.writeText(text).then(() => {
-                toast.style.display = 'block';
-                setTimeout(() => { toast.style.display = 'none'; }, 1200);
-            });
-        }
-
-        function generateOrderNumber(targetLength) {
-            const now = new Date();
-            const yy = now.getFullYear().toString().slice(-2);
-            const mm = (now.getMonth() + 1).toString().padStart(2, '0');
-            const dd = now.getDate().toString().padStart(2, '0');
-            const hh = now.getHours().toString().padStart(2, '0');
-            const min = now.getMinutes().toString().padStart(2, '0');
-            const ss = now.getSeconds().toString().padStart(2, '0');
-            
-            let baseString = yy + mm + dd + hh + min + ss;
-
-            if (targetLength <= 12) {
-                return baseString.slice(0, targetLength);
-            }
-
-            const neededRandomDigits = targetLength - baseString.length;
-            let randomPart = '';
-            for (let i = 0; i < neededRandomDigits; i++) {
-                randomPart += Math.floor(Math.random() * 10).toString();
-            }
-
-            return baseString + randomPart;
-        }
-
-        const totalCards = 14;
-        for (let i = 0; i < totalCards; i++) {
-            const card = document.createElement('div');
-            card.className = 'order-card';
-            card.innerHTML = `
-                <span class="card-label">● 实时生成14位编号</span>
-                <div class="card-number locked" id="num-${i}">Loading...</div>
-            `;
-            card.onclick = function() {
-                const numText = document.getElementById(`num-${i}`).innerText;
-                copyToClipboard(numText);
-            };
-            container.appendChild(card);
-        }
-
-        window.updateAllNumbers = function() {
-            const length = window.selectedDigits || 14;
-            for (let i = 0; i < totalCards; i++) {
-                const el = document.getElementById(`num-${i}`);
-                if(el) el.innerText = generateOrderNumber(length);
-            }
-        };
-
-        setInterval(window.updateAllNumbers, 1000);
-        window.updateAllNumbers();
-    </script>
 </body>
 </html>
