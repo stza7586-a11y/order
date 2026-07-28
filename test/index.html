@@ -18,6 +18,8 @@
             --text-muted: #94a3b8;
             --accent: #10b981;
             --card-font-size: 20px;
+            --warning: #f59e0b;
+            --danger: #ef4444;
         }
 
         body {
@@ -65,7 +67,6 @@
             display: none;
         }
 
-        /* Avatar Container (Used for both Img & Letter) */
         .avatar-box {
             width: 38px;
             height: 38px;
@@ -83,14 +84,8 @@
             overflow: hidden;
             user-select: none;
         }
-        .avatar-box:hover {
-            transform: scale(1.05);
-        }
-        .avatar-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .avatar-box:hover { transform: scale(1.05); }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
 
         .dropdown-menu {
             position: absolute;
@@ -107,11 +102,8 @@
             gap: 12px;
             z-index: 100;
         }
-        .dropdown-menu.show {
-            display: flex;
-        }
+        .dropdown-menu.show { display: flex; }
 
-        /* Avatar Upload Section inside Dropdown */
         .avatar-upload-section {
             display: flex;
             flex-direction: column;
@@ -120,10 +112,7 @@
             border-bottom: 1px solid #334155;
             padding-bottom: 10px;
         }
-        .avatar-preview-wrapper {
-            position: relative;
-            cursor: pointer;
-        }
+        .avatar-preview-wrapper { position: relative; cursor: pointer; }
         .dropdown-avatar-box {
             width: 50px;
             height: 50px;
@@ -139,11 +128,7 @@
             overflow: hidden;
             user-select: none;
         }
-        .dropdown-avatar-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .dropdown-avatar-box img { width: 100%; height: 100%; object-fit: cover; }
 
         .avatar-overlay {
             position: absolute;
@@ -158,9 +143,7 @@
             color: #fff;
             font-size: 14px;
         }
-        .avatar-preview-wrapper:hover .avatar-overlay {
-            opacity: 1;
-        }
+        .avatar-preview-wrapper:hover .avatar-overlay { opacity: 1; }
         .user-email-text {
             font-size: 12px;
             color: var(--text-muted);
@@ -169,7 +152,6 @@
             text-align: center;
         }
 
-        /* Settings inside Dropdown */
         .setting-item {
             display: flex;
             flex-direction: column;
@@ -179,17 +161,9 @@
             border-bottom: 1px solid #334155;
             padding-bottom: 10px;
         }
-        .setting-label {
-            display: flex;
-            justify-content: space-between;
-        }
-        .slider-input {
-            width: 100%;
-            accent-color: var(--primary);
-            cursor: pointer;
-        }
+        .setting-label { display: flex; justify-content: space-between; }
+        .slider-input { width: 100%; accent-color: var(--primary); cursor: pointer; }
 
-        /* Menu Action Buttons */
         .menu-btn {
             background: #334155;
             color: white;
@@ -205,9 +179,7 @@
             gap: 6px;
             transition: background 0.2s;
         }
-        .menu-btn:hover {
-            background: #475569;
-        }
+        .menu-btn:hover { background: #475569; }
         .remove-photo-btn {
             background: transparent;
             border: 1px solid #ef4444;
@@ -216,38 +188,27 @@
             padding: 4px 8px;
             margin-top: 4px;
         }
-        .remove-photo-btn:hover {
-            background: #ef4444;
-            color: white;
-        }
-        .logout-btn {
-            background: #ef4444;
-        }
-        .logout-btn:hover {
-            background: #dc2626;
-        }
+        .remove-photo-btn:hover { background: #ef4444; color: white; }
+        .logout-btn { background: #ef4444; }
+        .logout-btn:hover { background: #dc2626; }
 
-        /* Modern Auth Card */
-        .auth-container {
+        /* Auth & Deposit Section */
+        .auth-container, .deposit-container, .admin-container {
             background: var(--card-bg);
             border: 1px solid #334155;
             border-radius: 16px;
             padding: 30px;
             width: 100%;
-            max-width: 400px;
+            max-width: 440px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            margin-top: 40px;
+            margin-top: 20px;
+            box-sizing: border-box;
         }
-        .auth-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .auth-header h2 { margin: 0 0 10px 0; font-size: 24px; }
-        .auth-header p { color: var(--text-muted); font-size: 14px; margin: 0; }
+        .auth-header { text-align: center; margin-bottom: 25px; }
+        .auth-header h2 { margin: 0 0 10px 0; font-size: 22px; }
+        .auth-header p { color: var(--text-muted); font-size: 13px; margin: 0; line-height: 1.5; }
 
-        .input-group {
-            margin-bottom: 15px;
-        }
+        .input-group { margin-bottom: 15px; }
         .input-group input {
             width: 100%;
             padding: 12px;
@@ -274,6 +235,8 @@
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-google { background: #ffffff; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-google:hover { background: #f1f5f9; }
+        .btn-success { background: var(--accent); color: #000; }
+        .btn-success:hover { background: #059669; color: #fff; }
 
         .auth-toggle {
             text-align: center;
@@ -283,7 +246,71 @@
             cursor: pointer;
         }
 
-        /* Vertical Generator Layout */
+        /* Binance Payment Box Styles */
+        .binance-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .address-box {
+            background: #1e293b;
+            border: 1px dashed var(--primary);
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            word-break: break-all;
+            color: #f59e0b;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 5px;
+        }
+        .copy-icon-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .upload-box {
+            border: 2px dashed #334155;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #0f172a;
+            margin-bottom: 15px;
+            transition: border-color 0.2s;
+        }
+        .upload-box:hover { border-color: var(--primary); }
+        .upload-preview {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 6px;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .status-rejected { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+
+        /* Main Generator Dashboard */
         #main-app { display: none; width: 100%; max-width: 600px; flex-direction: column; align-items: center; }
         
         .vertical-container {
@@ -315,6 +342,21 @@
             color: #fff; 
             font-family: monospace; 
             transition: font-size 0.2s ease;
+        }
+
+        /* Admin Requests Table/List */
+        .admin-req-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+        .admin-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
         }
 
         #toast {
@@ -351,6 +393,12 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
+
+        // ⚠️ OWNER / ADMIN EMAIL (မင်းရဲ့ အကောင့် Email ထည့်ပါ)
+        window.ADMIN_EMAIL = "your_email@gmail.com"; 
+
+        // ⚠️ BINANCE USDT RECEIVING ADDRESS
+        window.USDT_ADDRESS = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"; 
 
         const i18n = {
             zh: {
@@ -456,7 +504,6 @@
             window.updateUI();
         };
 
-        // Render Avatar Logic (Image or Gmail Style First Letter)
         window.renderAvatar = function() {
             if(!currentUser) return;
             
@@ -476,15 +523,17 @@
             if (finalPhoto) {
                 document.getElementById('profile-btn').innerHTML = `<img src="${finalPhoto}" alt="Avatar">`;
                 document.getElementById('dropdown-avatar-img').innerHTML = `<img src="${finalPhoto}" alt="Avatar">`;
-                removeBtn.style.display = 'flex'; // Show remove button if photo exists
+                removeBtn.style.display = 'flex';
             } else {
                 document.getElementById('profile-btn').innerHTML = initialLetter;
                 document.getElementById('dropdown-avatar-img').innerHTML = initialLetter;
-                removeBtn.style.display = 'none'; // Hide remove button if no custom photo
+                removeBtn.style.display = 'none';
             }
         };
 
         const authCard = document.getElementById('auth-card');
+        const depositCard = document.getElementById('deposit-card');
+        const adminCard = document.getElementById('admin-card');
         const mainApp = document.getElementById('main-app');
         const profileContainer = document.getElementById('profile-container');
         const emailInput = document.getElementById('email-input');
@@ -521,13 +570,11 @@
             document.getElementById('dropdown-menu').classList.remove('show');
         });
 
-        // Switch Account
         document.getElementById('switch-acc-btn').addEventListener('click', () => {
             signOut(auth);
             document.getElementById('dropdown-menu').classList.remove('show');
         });
 
-        // Remove Profile Photo
         document.getElementById('remove-photo-btn').addEventListener('click', () => {
             if (currentUser) {
                 localStorage.removeItem('custom_avatar_' + currentUser.uid);
@@ -536,7 +583,6 @@
             }
         });
 
-        // Profile Dropdown Toggle
         document.getElementById('profile-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('dropdown-menu').classList.toggle('show');
@@ -550,7 +596,7 @@
             document.getElementById('dropdown-menu').classList.remove('show');
         });
 
-        // Unique Image Upload Logic
+        // Image Upload
         const avatarUpload = document.getElementById('avatar-upload');
         avatarUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -566,7 +612,7 @@
             }
         });
 
-        // Font Size Slider Logic
+        // Font Size
         const fontSlider = document.getElementById('font-size-slider');
         const fontSizeVal = document.getElementById('font-size-val');
 
@@ -577,7 +623,6 @@
             localStorage.setItem('custom_font_size', e.target.value);
         });
 
-        // Load Saved Font Size
         const savedFontSize = localStorage.getItem('custom_font_size');
         if(savedFontSize) {
             fontSlider.value = savedFontSize;
@@ -585,22 +630,155 @@
             fontSizeVal.innerText = savedFontSize + 'px';
         }
 
+        // Check Auth Status & Verification Logic
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 authCard.style.display = 'none';
-                mainApp.style.display = 'flex';
                 profileContainer.style.display = 'block';
                 document.getElementById('user-email').innerText = user.email;
-
                 window.renderAvatar();
+
+                // Admin check
+                if(user.email.toLowerCase() === window.ADMIN_EMAIL.toLowerCase()) {
+                    document.getElementById('admin-nav-btn').style.display = 'block';
+                } else {
+                    document.getElementById('admin-nav-btn').style.display = 'none';
+                }
+
+                window.checkPaymentStatus();
             } else {
                 currentUser = null;
                 authCard.style.display = 'block';
+                depositCard.style.display = 'none';
+                adminCard.style.display = 'none';
                 mainApp.style.display = 'none';
                 profileContainer.style.display = 'none';
             }
         });
+
+        // Payment Approval Logic (LocalStorage / Firebase State handling)
+        window.checkPaymentStatus = function() {
+            if(!currentUser) return;
+            
+            // Admin automatically granted access
+            if(currentUser.email.toLowerCase() === window.ADMIN_EMAIL.toLowerCase()) {
+                depositCard.style.display = 'none';
+                mainApp.style.display = 'flex';
+                return;
+            }
+
+            const userStatus = localStorage.getItem('user_status_' + currentUser.uid) || 'unpaid';
+
+            if(userStatus === 'approved') {
+                depositCard.style.display = 'none';
+                mainApp.style.display = 'flex';
+            } else {
+                mainApp.style.display = 'none';
+                depositCard.style.display = 'block';
+                
+                const statusBadge = document.getElementById('deposit-status');
+                if(userStatus === 'pending') {
+                    statusBadge.style.display = 'inline-block';
+                    statusBadge.className = 'status-badge status-pending';
+                    statusBadge.innerText = '⏳ 审核中 / Pending Approval';
+                } else if(userStatus === 'rejected') {
+                    statusBadge.style.display = 'inline-block';
+                    statusBadge.className = 'status-badge status-rejected';
+                    statusBadge.innerText = '❌ 已拒绝 / Rejected. Please re-upload.';
+                } else {
+                    statusBadge.style.display = 'none';
+                }
+            }
+        };
+
+        // Submit Payment Proof
+        window.submitProof = function() {
+            const preview = document.getElementById('proof-preview');
+            if(!preview.src || preview.style.display === 'none') {
+                alert("ကျေးဇူးပြု၍ စခရင်ရှော့ပုံ တင်ပေးပါ / Please upload screenshot");
+                return;
+            }
+
+            // Save Request to Database / LocalStorage
+            const requests = JSON.parse(localStorage.getItem('payment_requests') || '[]');
+            
+            // Remove previous if exists
+            const filtered = requests.filter(r => r.uid !== currentUser.uid);
+            filtered.push({
+                uid: currentUser.uid,
+                email: currentUser.email,
+                image: preview.src,
+                date: new Date().toLocaleString()
+            });
+
+            localStorage.setItem('payment_requests', JSON.stringify(filtered));
+            localStorage.setItem('user_status_' + currentUser.uid, 'pending');
+
+            alert("စခရင်ရှော့ ပို့ပြီးပါပြီ။ Admin အတည်ပြုပေးသည်အထိ စောင့်ဆိုင်းပေးပါ။");
+            window.checkPaymentStatus();
+        };
+
+        // Admin Panel Functions
+        window.toggleAdminPanel = function() {
+            if(adminCard.style.display === 'block') {
+                adminCard.style.display = 'none';
+                window.checkPaymentStatus();
+            } else {
+                mainApp.style.display = 'none';
+                depositCard.style.display = 'none';
+                adminCard.style.display = 'block';
+                window.loadAdminRequests();
+            }
+        };
+
+        window.loadAdminRequests = function() {
+            const list = document.getElementById('admin-req-list');
+            const requests = JSON.parse(localStorage.getItem('payment_requests') || '[]');
+            list.innerHTML = '';
+
+            if(requests.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-muted); text-align:center;">မနီးသေးပါ / No pending payments</p>';
+                return;
+            }
+
+            requests.forEach(req => {
+                const item = document.createElement('div');
+                item.className = 'admin-req-card';
+                item.innerHTML = `
+                    <p><b>User:</b> ${req.email}</p>
+                    <p style="font-size:11px; color:var(--text-muted);"><b>Date:</b> ${req.date}</p>
+                    <img src="${req.image}" style="width:100%; max-height:150px; object-fit:contain; border-radius:6px; margin:8px 0;">
+                    <div class="admin-actions">
+                        <button class="btn btn-success" style="padding:8px; margin:0;" onclick="approveUser('${req.uid}')">Approve / လက်ခံမည်</button>
+                        <button class="btn logout-btn" style="padding:8px; margin:0;" onclick="rejectUser('${req.uid}')">Reject / ငြင်းပယ်မည်</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        };
+
+        window.approveUser = function(uid) {
+            localStorage.setItem('user_status_' + uid, 'approved');
+            removeRequest(uid);
+            alert("အကောင့်ကို အတည်ပြုပေးလိုက်ပါပြီ!");
+            window.loadAdminRequests();
+        };
+
+        window.rejectUser = function(uid) {
+            localStorage.setItem('user_status_' + uid, 'rejected');
+            removeRequest(uid);
+            alert("အကောင့်ကို ငြင်းပယ်လိုက်ပါပြီ!");
+            window.loadAdminRequests();
+        };
+
+        function removeRequest(uid) {
+            let requests = JSON.parse(localStorage.getItem('payment_requests') || '[]');
+            requests = requests.filter(r => r.uid !== uid);
+            localStorage.setItem('payment_requests', JSON.stringify(requests));
+        }
+
+        window.toggleAdminPanel = window.toggleAdminPanel;
     </script>
 </head>
 <body>
@@ -609,6 +787,11 @@
         <h3 id="page-title" style="margin:0;">14位订单生成器</h3>
         
         <div class="control-group">
+            <!-- Admin Switch Button (Shown to Owner) -->
+            <button id="admin-nav-btn" class="select-box" style="display:none; background:#f59e0b; color:#000; font-weight:bold;" onclick="toggleAdminPanel()">
+                <i class="fa-solid fa-user-shield"></i> Admin Panel
+            </button>
+
             <!-- Digits Selector -->
             <select class="select-box" onchange="changeDigits(this.value)">
                 <option value="20">20 Digits / 位</option>
@@ -641,7 +824,6 @@
                         <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                         <p class="user-email-text" id="user-email"></p>
                         
-                        <!-- Remove Photo Button -->
                         <button class="menu-btn remove-photo-btn" id="remove-photo-btn">
                             <i class="fa-solid fa-trash-can"></i>
                             <span id="remove-photo-text">移除头像</span>
@@ -695,6 +877,44 @@
         <div class="auth-toggle" id="toggle-auth">没有账号？点击注册</div>
     </div>
 
+    <!-- Deposit / Verification Form Card -->
+    <div class="deposit-container" id="deposit-card" style="display: none;">
+        <div class="auth-header">
+            <h2>USDT 充值激活账号</h2>
+            <p>အသုံးပြုရန် Binance USDT Address ထို့ငွေလွှဲပြီး စခရင်ရှော့ပုံ ပေးပို့ပါ</p>
+        </div>
+
+        <div style="text-align: center;">
+            <div id="deposit-status" class="status-badge" style="display: none;"></div>
+        </div>
+
+        <div class="binance-card">
+            <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 5px 0;">Binance USDT (TRC20 / BEP20) Address:</p>
+            <div class="address-box">
+                <span id="usdt-addr-text">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span>
+                <button class="copy-icon-btn" onclick="copyAddress()"><i class="fa-regular fa-copy"></i></button>
+            </div>
+        </div>
+
+        <label for="proof-file-input" class="upload-box">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 24px; color: var(--primary);"></i>
+            <p style="font-size: 13px; margin: 8px 0 0 0; color: var(--text-muted);">ငွေလွှဲပြီးသည့် စခရင်ရှော့ပုံ တင်ရန် နှိပ်ပါ<br><small>(Click to upload payment screenshot)</small></p>
+            <img id="proof-preview" class="upload-preview" alt="Preview">
+        </label>
+        <input type="file" id="proof-file-input" accept="image/*" style="display: none;" onchange="previewProof(event)">
+
+        <button class="btn btn-primary" onclick="submitProof()">提交证明 / Submit Proof</button>
+    </div>
+
+    <!-- Admin Approval Dashboard Panel (Owner Only) -->
+    <div class="admin-container" id="admin-card" style="display: none;">
+        <div class="auth-header">
+            <h2><i class="fa-solid fa-user-shield"></i> Admin Panel</h2>
+            <p>ငွေလွှဲ စခရင်ရှော့များကို စစ်ဆေး၍ အတည်ပြုပေးရန်</p>
+        </div>
+        <div id="admin-req-list"></div>
+    </div>
+
     <!-- Main Generator Dashboard -->
     <div id="main-app">
         <div id="toast">复制成功！</div>
@@ -705,6 +925,28 @@
     <script>
         const container = document.getElementById('container');
         const toast = document.getElementById('toast');
+
+        // Set Address Text on Load
+        document.getElementById('usdt-addr-text').innerText = window.USDT_ADDRESS;
+
+        function copyAddress() {
+            navigator.clipboard.writeText(window.USDT_ADDRESS).then(() => {
+                alert("USDT Address ကူးယူပြီးပါပြီ!");
+            });
+        }
+
+        function previewProof(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const img = document.getElementById('proof-preview');
+                    img.src = evt.target.result;
+                    img.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
