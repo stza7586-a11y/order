@@ -38,12 +38,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             gap: 10px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
         .control-group {
             display: flex;
+            align-items: center;
             gap: 10px;
         }
         .select-box {
@@ -55,6 +56,69 @@
             cursor: pointer;
             outline: none;
             font-size: 14px;
+        }
+
+        /* Profile Dropdown Component */
+        .user-dropdown-container {
+            position: relative;
+            display: none; /* Login ဝင်မှ ပေါ်မည် */
+        }
+        .profile-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            object-fit: cover;
+            transition: transform 0.2s;
+        }
+        .profile-btn:hover {
+            transform: scale(1.05);
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 15px;
+            width: 220px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+        .dropdown-menu.show {
+            display: flex;
+        }
+        .user-email-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            word-break: break-all;
+            margin: 0;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background: #dc2626;
         }
 
         /* Modern Auth Card */
@@ -113,28 +177,9 @@
             cursor: pointer;
         }
 
-        /* User Header Area */
-        #user-bar {
-            display: none;
-            width: 100%;
-            max-width: 600px;
-            background: var(--card-bg);
-            border: 1px solid #334155;
-            padding: 12px 20px;
-            border-radius: 12px;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-        }
-        .user-profile { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 36px; height: 36px; border-radius: 50%; }
-        .logout-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
-
         /* Vertical Generator Layout */
         #main-app { display: none; width: 100%; max-width: 600px; flex-direction: column; align-items: center; }
         
-        /* Column/Vertical Layout (ဒေါလိုက်တန်းစီခြင်း) */
         .vertical-container {
             display: flex;
             flex-direction: column;
@@ -194,7 +239,6 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // Translation Dictionary
         const i18n = {
             zh: {
                 titleSuffix: "位订单生成器",
@@ -242,10 +286,7 @@
             const t = i18n[window.currentLang];
             const digits = window.selectedDigits;
 
-            // Page Title Update
             document.getElementById('page-title').innerText = `${digits}${t.titleSuffix}`;
-            
-            // Auth Form Text Updates
             document.getElementById('auth-title').innerText = isSignUpMode ? t.signUpBtn : t.loginTitle;
             document.getElementById('auth-desc').innerText = t.loginDesc;
             document.getElementById('email-input').placeholder = t.emailPlaceholder;
@@ -253,16 +294,14 @@
             document.getElementById('submit-btn').innerText = isSignUpMode ? t.signUpBtn : t.loginBtn;
             document.getElementById('google-text').innerText = t.googleBtn;
             document.getElementById('toggle-auth').innerText = isSignUpMode ? t.toggleLogin : t.toggleSignUp;
-            document.getElementById('logout-btn').innerText = t.logout;
+            document.getElementById('logout-btn-text').innerText = t.logout;
             document.getElementById('footer-tip').innerText = t.clickCopy;
             document.getElementById('toast').innerText = t.copied;
             
-            // Card Labels Update
             document.querySelectorAll('.card-label').forEach(el => {
                 el.innerText = `${t.liveLabelPrefix}${digits}${t.liveLabelSuffix}`;
             });
 
-            // Refresh generated numbers immediately
             if(window.updateAllNumbers) window.updateAllNumbers();
         };
 
@@ -276,10 +315,9 @@
             window.updateUI();
         };
 
-        // DOM Elements
         const authCard = document.getElementById('auth-card');
         const mainApp = document.getElementById('main-app');
-        const userBar = document.getElementById('user-bar');
+        const profileContainer = document.getElementById('profile-container');
         const emailInput = document.getElementById('email-input');
         const passInput = document.getElementById('pass-input');
         const submitBtn = document.getElementById('submit-btn');
@@ -290,7 +328,6 @@
             window.updateUI();
         });
 
-        // Form Submit Login/Register
         submitBtn.addEventListener('click', () => {
             const email = emailInput.value;
             const pass = passInput.value;
@@ -303,26 +340,36 @@
             }
         });
 
-        // Google Login
         document.getElementById('google-btn').addEventListener('click', () => {
             signInWithPopup(auth, provider).catch(e => alert("Google Login Error: " + e.message));
         });
 
-        // Logout
-        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            signOut(auth);
+            document.getElementById('dropdown-menu').classList.remove('show');
+        });
 
-        // Auth Monitor State
+        // Dropdown Toggle Control
+        document.getElementById('profile-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('dropdown-menu').classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            document.getElementById('dropdown-menu').classList.remove('show');
+        });
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 authCard.style.display = 'none';
                 mainApp.style.display = 'flex';
-                userBar.style.display = 'flex';
+                profileContainer.style.display = 'block';
                 document.getElementById('user-email').innerText = user.email;
-                document.getElementById('user-avatar').src = user.photoURL || 'https://via.placeholder.com/36/4f46e5/fff?text=U';
+                document.getElementById('profile-btn').src = user.photoURL || 'https://via.placeholder.com/38/4f46e5/fff?text=U';
             } else {
                 authCard.style.display = 'block';
                 mainApp.style.display = 'none';
-                userBar.style.display = 'none';
+                profileContainer.style.display = 'none';
             }
         });
     </script>
@@ -333,7 +380,7 @@
         <h3 id="page-title" style="margin:0;">14位订单生成器</h3>
         
         <div class="control-group">
-            <!-- Digits Selector (20 down to 13) -->
+            <!-- Digits Selector -->
             <select class="select-box" onchange="changeDigits(this.value)">
                 <option value="20">20 Digits / 位</option>
                 <option value="19">19 Digits / 位</option>
@@ -345,11 +392,23 @@
                 <option value="13">13 Digits / 位</option>
             </select>
 
-            <!-- Language Switcher (Chinese & English only) -->
+            <!-- Language Switcher -->
             <select class="select-box" onchange="changeLanguage(this.value)">
                 <option value="zh">中文</option>
                 <option value="en">English</option>
             </select>
+
+            <!-- Profile Avatar with Dropdown -->
+            <div class="user-dropdown-container" id="profile-container">
+                <img id="profile-btn" class="profile-btn" src="" alt="User Profile">
+                <div class="dropdown-menu" id="dropdown-menu">
+                    <p class="user-email-text" id="user-email"></p>
+                    <button class="logout-btn" id="logout-btn">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span id="logout-btn-text">退出登录</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -376,19 +435,9 @@
         <div class="auth-toggle" id="toggle-auth">没有账号？点击注册</div>
     </div>
 
-    <!-- User Header Bar -->
-    <div id="user-bar">
-        <div class="user-profile">
-            <img id="user-avatar" class="avatar" src="" alt="User">
-            <span id="user-email" style="font-weight: 600;"></span>
-        </div>
-        <button class="logout-btn" id="logout-btn">退出登录</button>
-    </div>
-
     <!-- Main Generator Dashboard -->
     <div id="main-app">
         <div id="toast">复制成功！</div>
-        <!-- Vertical Column Container -->
         <div class="vertical-container" id="container"></div>
         <p id="footer-tip" style="color: var(--text-muted); font-size: 14px; margin-top: 20px;">(点击卡片复制，每秒自动更新)</p>
     </div>
@@ -404,7 +453,6 @@
             });
         }
 
-        // Dynamic Order ID Generator Algorithm for custom length
         function generateOrderNumber(targetLength) {
             const now = new Date();
             const yy = now.getFullYear().toString().slice(-2);
@@ -414,7 +462,6 @@
             const min = now.getMinutes().toString().padStart(2, '0');
             const ss = now.getSeconds().toString().padStart(2, '0');
             
-            // Base timestamp-based string length is 12 (YYMMDDHHMMSS)
             let baseString = yy + mm + dd + hh + min + ss;
 
             if (targetLength <= 12) {
@@ -430,7 +477,6 @@
             return baseString + randomPart;
         }
 
-        // Render Cards Vertically
         const totalCards = 14;
         for (let i = 0; i < totalCards; i++) {
             const card = document.createElement('div');
