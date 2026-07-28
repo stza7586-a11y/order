@@ -17,6 +17,7 @@
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --accent: #10b981;
+            --card-font-size: 20px;
         }
 
         body {
@@ -83,7 +84,7 @@
             border: 1px solid #334155;
             border-radius: 12px;
             padding: 15px;
-            width: 220px;
+            width: 240px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             display: none;
             flex-direction: column;
@@ -93,29 +94,92 @@
         .dropdown-menu.show {
             display: flex;
         }
+
+        /* Avatar Upload Section inside Dropdown */
+        .avatar-upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+        .avatar-preview-wrapper {
+            position: relative;
+            cursor: pointer;
+        }
+        .dropdown-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+        .avatar-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: #fff;
+            font-size: 12px;
+        }
+        .avatar-preview-wrapper:hover .avatar-overlay {
+            opacity: 1;
+        }
         .user-email-text {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-muted);
             word-break: break-all;
             margin: 0;
             text-align: center;
+        }
+
+        /* Settings inside Dropdown */
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--text-muted);
             border-bottom: 1px solid #334155;
             padding-bottom: 10px;
         }
-        .logout-btn {
-            background: #ef4444;
+        .setting-label {
+            display: flex;
+            justify-content: space-between;
+        }
+        .slider-input {
+            width: 100%;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Menu Action Buttons */
+        .menu-btn {
+            background: #334155;
             color: white;
             border: none;
             padding: 8px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
             transition: background 0.2s;
+        }
+        .menu-btn:hover {
+            background: #475569;
+        }
+        .logout-btn {
+            background: #ef4444;
         }
         .logout-btn:hover {
             background: #dc2626;
@@ -202,7 +266,14 @@
             background: #243347;
         }
         .card-label { color: var(--accent); font-size: 13px; font-weight: 500; }
-        .card-number { font-size: 20px; font-weight: 700; letter-spacing: 1.5px; color: #fff; font-family: monospace; }
+        .card-number { 
+            font-size: var(--card-font-size); 
+            font-weight: 700; 
+            letter-spacing: 1.5px; 
+            color: #fff; 
+            font-family: monospace; 
+            transition: font-size 0.2s ease;
+        }
 
         #toast {
             position: fixed;
@@ -252,6 +323,8 @@
                 toggleSignUp: "没有账号？点击注册",
                 toggleLogin: "已有账号？点击登录",
                 logout: "退出登录",
+                switchAcc: "切换账号",
+                fontSize: "字体大小",
                 liveLabelPrefix: "● 实时生成",
                 liveLabelSuffix: "位编号",
                 clickCopy: "(点击卡片复制，每秒自动更新)",
@@ -270,6 +343,8 @@
                 toggleSignUp: "No account? Register here",
                 toggleLogin: "Have an account? Sign in",
                 logout: "Log Out",
+                switchAcc: "Switch Account",
+                fontSize: "Font Size",
                 liveLabelPrefix: "● Live ",
                 liveLabelSuffix: "-Digit Order ID",
                 clickCopy: "(Click card to copy, updates every second)",
@@ -295,6 +370,8 @@
             document.getElementById('google-text').innerText = t.googleBtn;
             document.getElementById('toggle-auth').innerText = isSignUpMode ? t.toggleLogin : t.toggleSignUp;
             document.getElementById('logout-btn-text').innerText = t.logout;
+            document.getElementById('switch-acc-text').innerText = t.switchAcc;
+            document.getElementById('font-size-label').innerText = t.fontSize;
             document.getElementById('footer-tip').innerText = t.clickCopy;
             document.getElementById('toast').innerText = t.copied;
             
@@ -344,20 +421,67 @@
             signInWithPopup(auth, provider).catch(e => alert("Google Login Error: " + e.message));
         });
 
+        // Logout
         document.getElementById('logout-btn').addEventListener('click', () => {
             signOut(auth);
             document.getElementById('dropdown-menu').classList.remove('show');
         });
 
-        // Dropdown Toggle Control
+        // Switch Account (Sign out and show login)
+        document.getElementById('switch-acc-btn').addEventListener('click', () => {
+            signOut(auth);
+            document.getElementById('dropdown-menu').classList.remove('show');
+        });
+
+        // Profile Dropdown Toggle
         document.getElementById('profile-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('dropdown-menu').classList.toggle('show');
         });
 
+        document.getElementById('dropdown-menu').addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents menu from closing when clicking inside
+        });
+
         document.addEventListener('click', () => {
             document.getElementById('dropdown-menu').classList.remove('show');
         });
+
+        // Image Upload Logic
+        const avatarUpload = document.getElementById('avatar-upload');
+        avatarUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const customImgData = evt.target.result;
+                    document.getElementById('profile-btn').src = customImgData;
+                    document.getElementById('dropdown-avatar-img').src = customImgData;
+                    // Save custom avatar locally
+                    localStorage.setItem('custom_avatar', customImgData);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Font Size Slider Logic
+        const fontSlider = document.getElementById('font-size-slider');
+        const fontSizeVal = document.getElementById('font-size-val');
+
+        fontSlider.addEventListener('input', (e) => {
+            const size = e.target.value + 'px';
+            document.documentElement.style.setProperty('--card-font-size', size);
+            fontSizeVal.innerText = size;
+            localStorage.setItem('custom_font_size', e.target.value);
+        });
+
+        // Load Saved Font Size
+        const savedFontSize = localStorage.getItem('custom_font_size');
+        if(savedFontSize) {
+            fontSlider.value = savedFontSize;
+            document.documentElement.style.setProperty('--card-font-size', savedFontSize + 'px');
+            fontSizeVal.innerText = savedFontSize + 'px';
+        }
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -365,7 +489,14 @@
                 mainApp.style.display = 'flex';
                 profileContainer.style.display = 'block';
                 document.getElementById('user-email').innerText = user.email;
-                document.getElementById('profile-btn').src = user.photoURL || 'https://via.placeholder.com/38/4f46e5/fff?text=U';
+
+                // Priority: Local Custom Avatar > User Photo > Placeholder
+                const savedAvatar = localStorage.getItem('custom_avatar');
+                const defaultPhoto = user.photoURL || 'https://via.placeholder.com/50/4f46e5/fff?text=U';
+                const finalPhoto = savedAvatar || defaultPhoto;
+
+                document.getElementById('profile-btn').src = finalPhoto;
+                document.getElementById('dropdown-avatar-img').src = finalPhoto;
             } else {
                 authCard.style.display = 'block';
                 mainApp.style.display = 'none';
@@ -398,12 +529,37 @@
                 <option value="en">English</option>
             </select>
 
-            <!-- Profile Avatar with Dropdown -->
+            <!-- Profile Avatar with Enhanced Dropdown -->
             <div class="user-dropdown-container" id="profile-container">
                 <img id="profile-btn" class="profile-btn" src="" alt="User Profile">
+                
                 <div class="dropdown-menu" id="dropdown-menu">
-                    <p class="user-email-text" id="user-email"></p>
-                    <button class="logout-btn" id="logout-btn">
+                    <!-- Avatar Upload & Info -->
+                    <div class="avatar-upload-section">
+                        <label for="avatar-upload" class="avatar-preview-wrapper" title="Click to change photo">
+                            <img id="dropdown-avatar-img" class="dropdown-avatar" src="" alt="Avatar">
+                            <div class="avatar-overlay"><i class="fa-solid fa-camera"></i></div>
+                        </label>
+                        <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                        <p class="user-email-text" id="user-email"></p>
+                    </div>
+
+                    <!-- Font Size Setting -->
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span id="font-size-label">字体大小</span>
+                            <span id="font-size-val">20px</span>
+                        </div>
+                        <input type="range" id="font-size-slider" class="slider-input" min="14" max="28" value="20">
+                    </div>
+
+                    <!-- Actions -->
+                    <button class="menu-btn" id="switch-acc-btn">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span id="switch-acc-text">切换账号</span>
+                    </button>
+
+                    <button class="menu-btn logout-btn" id="logout-btn">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span id="logout-btn-text">退出登录</span>
                     </button>
