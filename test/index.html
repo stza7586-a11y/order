@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14位订单生成器</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f6f8;
+            margin: 0;
+        }
+
+        /* Login Card UI */
+        #login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-top: 60px;
+            width: 320px;
+        }
+        .google-btn {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .google-btn:hover {
+            background-color: #357ae8;
+        }
+
+        /* User Header Bar */
+        #user-bar {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        .logout-btn {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Generator Main App (Hidden until login) */
+        #main-app {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .order-box {
+            border: 2px dashed #4CAF50;
+            border-radius: 15px;
+            padding: 15px 30px;
+            margin: 10px;
+            width: 380px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #fff;
+            transition: background 0.2s;
+        }
+        .order-box:hover {
+            background-color: #f0fdf4;
+        }
+        .label {
+            color: #4CAF50;
+            font-size: 16px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .number {
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+            letter-spacing: 1px;
+        }
+        #toast {
+            position: fixed;
+            top: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: none;
+            z-index: 100;
+        }
+    </style>
+
+    <!-- Firebase Script Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // သင့်ရဲ့ Firebase Config များ
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4pKIXlL9sk7xIP7-Yrqs5yGfit1lE_YM",
+            authDomain: "order-generator-47380.firebaseapp.com",
+            projectId: "order-generator-47380",
+            storageBucket: "order-generator-47380.firebasestorage.app",
+            messagingSenderId: "984303991759",
+            appId: "1:984303991759:web:fa4c91d4a6cbb880b7f0ba",
+            measurementId: "G-4Q041S41LD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const loginCard = document.getElementById('login-card');
+        const mainApp = document.getElementById('main-app');
+        const userBar = document.getElementById('user-bar');
+        const userEmail = document.getElementById('user-email');
+        const userPhoto = document.getElementById('user-photo');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // Google Sign-In Event
+        loginBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch((error) => {
+                alert("Login မအောင်မြင်ပါ: " + error.message);
+            });
+        });
+
+        // Sign Out Event
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth);
+        });
+
+        // Check Auth State Change
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginCard.style.display = 'none';
+                mainApp.style.display = 'flex';
+                userBar.style.display = 'flex';
+                userEmail.innerText = user.email;
+                userPhoto.src = user.photoURL || 'https://via.placeholder.com/32';
+            } else {
+                loginCard.style.display = 'block';
+                mainApp.style.display = 'none';
+                userBar.style.display = 'none';
+            }
+        });
+    </script>
+</head>
+<body>
+
+    <!-- 1. Login Area -->
+    <div id="login-card">
+        <h2 style="margin-top:0;">အကောင့်ဝင်ရန်</h2>
+        <p style="color: #666; font-size: 14px;">၁၄ လုံးပါ နံပါတ် ထုတ်ပေးသည့်စနစ်ကို အသုံးပြုရန် Gmail အကောင့်ဖြင့် မဖြစ်မနေ အရင်ဝင်ရောက်ပါ။</p>
+        <button class="google-btn" id="login-btn">
+            Sign in with Google
+        </button>
+    </div>
+
+    <!-- 2. Main Generator Area -->
+    <div id="user-bar">
+        <div class="user-info">
+            <img id="user-photo" class="user-avatar" src="" alt="Profile">
+            <span id="user-email" style="font-size: 13px; font-weight: bold; color: #333;"></span>
+        </div>
+        <button class="logout-btn" id="logout-btn">Log Out</button>
+    </div>
+
+    <div id="main-app">
+        <div id="toast">复制成功</div>
+        <div id="container"></div>
+        <p style="color: #888; font-size: 14px;">(点击上方区域复制，14位编号每秒自动跳动)</p>
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        const toast = document.getElementById('toast');
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 1000);
+            });
+        }
+
+        function generate14DigitOrder() {
+            const now = new Date();
+            const yy = now.getFullYear().toString().slice(-2);
+            const mm = (now.getMonth() + 1).toString().padStart(2, '0');
+            const dd = now.getDate().toString().padStart(2, '0');
+            const hh = now.getHours().toString().padStart(2, '0');
+            const min = now.getMinutes().toString().padStart(2, '0');
+            const ss = now.getSeconds().toString().padStart(2, '0');
+            const randomPart = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+            
+            return yy + mm + dd + hh + min + ss + randomPart;
+        }
+
+        for (let i = 0; i < 14; i++) {
+            const box = document.createElement('div');
+            box.className = 'order-box';
+            box.innerHTML = `
+                <span class="label">● 正在实时生成每秒唯一编号</span>
+                <div class="number" id="num-${i}">加载中...</div>
+            `;
+            box.onclick = function() {
+                const numText = document.getElementById(`num-${i}`).innerText;
+                copyToClipboard(numText);
+            };
+            container.appendChild(box);
+        }
+
+        function updateAll() {
+            for (let i = 0; i < 14; i++) {
+                document.getElementById(`num-${i}`).innerText = generate14DigitOrder();
+            }
+        }
+
+        setInterval(updateAll, 1000);
+        updateAll();
+    </script>
+</body>
+</html>
