@@ -17,9 +17,9 @@
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --accent: #10b981;
-            --card-font-size: 20px;
-            --warning: #f59e0b;
             --danger: #ef4444;
+            --warning: #f59e0b;
+            --card-font-size: 20px;
         }
 
         body {
@@ -192,21 +192,21 @@
         .logout-btn { background: #ef4444; }
         .logout-btn:hover { background: #dc2626; }
 
-        /* Auth & Deposit Section */
-        .auth-container, .deposit-container, .admin-container {
+        /* Modern Auth Card */
+        .auth-container, .deposit-container {
             background: var(--card-bg);
             border: 1px solid #334155;
             border-radius: 16px;
             padding: 30px;
             width: 100%;
-            max-width: 440px;
+            max-width: 420px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             margin-top: 20px;
             box-sizing: border-box;
         }
         .auth-header { text-align: center; margin-bottom: 25px; }
-        .auth-header h2 { margin: 0 0 10px 0; font-size: 22px; }
-        .auth-header p { color: var(--text-muted); font-size: 13px; margin: 0; line-height: 1.5; }
+        .auth-header h2 { margin: 0 0 10px 0; font-size: 24px; }
+        .auth-header p { color: var(--text-muted); font-size: 14px; margin: 0; }
 
         .input-group { margin-bottom: 15px; }
         .input-group input {
@@ -235,8 +235,6 @@
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-google { background: #ffffff; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-google:hover { background: #f1f5f9; }
-        .btn-success { background: var(--accent); color: #000; }
-        .btn-success:hover { background: #059669; color: #fff; }
 
         .auth-toggle {
             text-align: center;
@@ -246,71 +244,42 @@
             cursor: pointer;
         }
 
-        /* Binance Payment Box Styles */
-        .binance-card {
+        /* Deposit / Payment Section */
+        #deposit-card { display: none; }
+        .qr-placeholder {
             background: #0f172a;
             border: 1px solid #334155;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 15px;
-            margin-bottom: 15px;
             text-align: center;
+            margin-bottom: 15px;
         }
         .address-box {
-            background: #1e293b;
-            border: 1px dashed var(--primary);
+            background: #0f172a;
+            border: 1px dashed var(--accent);
             padding: 10px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-family: monospace;
-            font-size: 13px;
+            font-size: 12px;
             word-break: break-all;
-            color: #f59e0b;
             margin: 10px 0;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 5px;
+            align-items: center;
+            color: #38bdf8;
         }
-        .copy-icon-btn {
-            background: var(--primary);
-            color: white;
+        .copy-btn {
+            background: var(--accent);
+            color: #000;
             border: none;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
-        }
-
-        .upload-box {
-            border: 2px dashed #334155;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            background: #0f172a;
-            margin-bottom: 15px;
-            transition: border-color 0.2s;
-        }
-        .upload-box:hover { border-color: var(--primary); }
-        .upload-preview {
-            max-width: 100%;
-            max-height: 180px;
-            border-radius: 6px;
-            display: none;
-            margin-top: 10px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
             font-weight: bold;
-            margin-bottom: 15px;
+            font-size: 12px;
         }
-        .status-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
-        .status-rejected { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
 
-        /* Main Generator Dashboard */
+        /* Vertical Generator Layout */
         #main-app { display: none; width: 100%; max-width: 600px; flex-direction: column; align-items: center; }
         
         .vertical-container {
@@ -329,34 +298,28 @@
             align-items: center;
             cursor: pointer;
             transition: transform 0.2s, background 0.2s;
+            position: relative;
+            user-select: none;
         }
         .order-card:hover {
             transform: translateY(-2px);
             background: #243347;
         }
         .card-label { color: var(--accent); font-size: 13px; font-weight: 500; }
+        
+        /* Blurred numbers style when unauthorized/expired */
         .card-number { 
             font-size: var(--card-font-size); 
             font-weight: 700; 
             letter-spacing: 1.5px; 
             color: #fff; 
             font-family: monospace; 
-            transition: font-size 0.2s ease;
+            transition: font-size 0.2s ease, filter 0.3s ease, opacity 0.3s ease;
         }
-
-        /* Admin Requests Table/List */
-        .admin-req-card {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-            font-size: 13px;
-        }
-        .admin-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
+        .card-number.locked {
+            filter: blur(6px);
+            opacity: 0.4;
+            pointer-events: none;
         }
 
         #toast {
@@ -371,6 +334,17 @@
             z-index: 1000;
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
         }
+
+        .status-badge {
+            background: var(--warning);
+            color: #000;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
     </style>
 
     <script type="module">
@@ -379,6 +353,9 @@
             getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged,
             createUserWithEmailAndPassword, signInWithEmailAndPassword 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, doc, getDoc, setDoc, updateDoc 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB4pKIXlL9sk7xIP7-Yrqs5yGfit1lE_YM",
@@ -392,13 +369,11 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // ⚠️ OWNER / ADMIN EMAIL (မင်းရဲ့ အကောင့် Email ထည့်ပါ)
-        window.ADMIN_EMAIL = "your_email@gmail.com"; 
-
-        // ⚠️ BINANCE USDT RECEIVING ADDRESS
-        window.USDT_ADDRESS = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"; 
+        // YOUR BINANCE USDT ADDRESS (BEP20 / TRC20)
+        const MY_BINANCE_USDT_ADDRESS = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F";
 
         const i18n = {
             zh: {
@@ -424,7 +399,17 @@
                 errInvalid: "邮箱或密码错误，或账号不存在！",
                 errInUse: "该邮箱已被注册！",
                 errWeak: "密码长度至少需要6位！",
-                errDefault: "登录失败，请重试！"
+                errDefault: "登录失败，请重试！",
+                // Deposit & Expired Messages
+                depositTitle: "充值/续费 USDT",
+                depositDesc: "您的账号未激活或使用期限已过期，请转账以继续使用。",
+                usdtAddrLabel: "USDT 接收地址 (BEP20/TRC20):",
+                copyAddr: "复制",
+                uploadProof: "上传转账截图 (Proof)",
+                submitProofBtn: "提交审核",
+                pendingStatus: "等待管理员审核中...",
+                expiredAlert: "使用期限已过期或未激活！请先充值 USDT 并在管理员确认后继续使用。",
+                proofSubmitted: "截图已成功提交，请等待管理员审核！"
             },
             en: {
                 titleSuffix: "-Digit Order Generator",
@@ -449,7 +434,17 @@
                 errInvalid: "Invalid email or password, or account does not exist!",
                 errInUse: "Email is already registered!",
                 errWeak: "Password should be at least 6 characters!",
-                errDefault: "Authentication failed. Please try again."
+                errDefault: "Authentication failed. Please try again.",
+                // Deposit & Expired Messages
+                depositTitle: "Deposit / Renew USDT",
+                depositDesc: "Your account is not active or membership has expired. Please make a payment to continue.",
+                usdtAddrLabel: "USDT Deposit Address (BEP20/TRC20):",
+                copyAddr: "Copy",
+                uploadProof: "Upload Payment Screenshot",
+                submitProofBtn: "Submit Payment Proof",
+                pendingStatus: "Awaiting Owner Verification...",
+                expiredAlert: "Membership expired or inactive! Please deposit USDT and wait for approval.",
+                proofSubmitted: "Payment proof submitted successfully! Please wait for owner confirmation."
             }
         };
 
@@ -457,6 +452,7 @@
         window.selectedDigits = 14;
         let isSignUpMode = false;
         let currentUser = null;
+        let userStatus = "pending"; // pending, approved, expired
 
         window.getErrorMessage = function(code) {
             const t = i18n[window.currentLang];
@@ -486,6 +482,14 @@
             document.getElementById('font-size-label').innerText = t.fontSize;
             document.getElementById('footer-tip').innerText = t.clickCopy;
             document.getElementById('toast').innerText = t.copied;
+
+            // Deposit Elements
+            document.getElementById('deposit-title').innerText = t.depositTitle;
+            document.getElementById('deposit-desc').innerText = t.depositDesc;
+            document.getElementById('usdt-label').innerText = t.usdtAddrLabel;
+            document.getElementById('copy-addr-btn').innerText = t.copyAddr;
+            document.getElementById('submit-proof-btn').innerText = t.submitProofBtn;
+            document.getElementById('status-badge').innerText = t.pendingStatus;
             
             document.querySelectorAll('.card-label').forEach(el => {
                 el.innerText = `${t.liveLabelPrefix}${digits}${t.liveLabelSuffix}`;
@@ -533,7 +537,6 @@
 
         const authCard = document.getElementById('auth-card');
         const depositCard = document.getElementById('deposit-card');
-        const adminCard = document.getElementById('admin-card');
         const mainApp = document.getElementById('main-app');
         const profileContainer = document.getElementById('profile-container');
         const emailInput = document.getElementById('email-input');
@@ -564,7 +567,6 @@
             signInWithPopup(auth, provider).catch(e => alert(window.getErrorMessage(e.code)));
         });
 
-        // Logout
         document.getElementById('logout-btn').addEventListener('click', () => {
             signOut(auth);
             document.getElementById('dropdown-menu').classList.remove('show');
@@ -596,7 +598,6 @@
             document.getElementById('dropdown-menu').classList.remove('show');
         });
 
-        // Image Upload
         const avatarUpload = document.getElementById('avatar-upload');
         avatarUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -612,7 +613,32 @@
             }
         });
 
-        // Font Size
+        // Copy Address Button
+        document.getElementById('copy-addr-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(MY_BINANCE_USDT_ADDRESS).then(() => {
+                alert(i18n[window.currentLang].copied);
+            });
+        });
+
+        // Submit Proof Action
+        document.getElementById('submit-proof-btn').addEventListener('click', async () => {
+            const proofInput = document.getElementById('proof-file');
+            if(!proofInput.files || proofInput.files.length === 0) {
+                return alert("Please select a screenshot file first!");
+            }
+            if(currentUser) {
+                await setDoc(doc(db, "users", currentUser.uid), {
+                    email: currentUser.email,
+                    status: "pending",
+                    submittedAt: new Date().toISOString()
+                }, { merge: true });
+
+                alert(i18n[window.currentLang].proofSubmitted);
+                location.reload();
+            }
+        });
+
+        // Font Size Slider
         const fontSlider = document.getElementById('font-size-slider');
         const fontSizeVal = document.getElementById('font-size-val');
 
@@ -630,155 +656,59 @@
             fontSizeVal.innerText = savedFontSize + 'px';
         }
 
-        // Check Auth Status & Verification Logic
-        onAuthStateChanged(auth, (user) => {
+        // Firestore User Status Check
+        async function checkUserSubscription(user) {
+            const userRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userRef);
+
+            if (docSnap.exists()) {
+                userStatus = docSnap.data().status || "pending";
+            } else {
+                userStatus = "pending";
+                await setDoc(userRef, {
+                    email: user.email,
+                    status: "pending",
+                    createdAt: new Date().toISOString()
+                });
+            }
+
+            if (userStatus === "approved") {
+                authCard.style.display = 'none';
+                depositCard.style.display = 'none';
+                mainApp.style.display = 'flex';
+                
+                // Unlock numbers
+                document.querySelectorAll('.card-number').forEach(el => el.classList.remove('locked'));
+            } else {
+                // Pending / Expired
+                authCard.style.display = 'none';
+                depositCard.style.display = 'block';
+                mainApp.style.display = 'flex';
+                
+                // Blur numbers
+                document.querySelectorAll('.card-number').forEach(el => el.classList.add('locked'));
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                authCard.style.display = 'none';
                 profileContainer.style.display = 'block';
                 document.getElementById('user-email').innerText = user.email;
+                document.getElementById('binance-address').innerText = MY_BINANCE_USDT_ADDRESS;
+
                 window.renderAvatar();
-
-                // Admin check
-                if(user.email.toLowerCase() === window.ADMIN_EMAIL.toLowerCase()) {
-                    document.getElementById('admin-nav-btn').style.display = 'block';
-                } else {
-                    document.getElementById('admin-nav-btn').style.display = 'none';
-                }
-
-                window.checkPaymentStatus();
+                await checkUserSubscription(user);
             } else {
                 currentUser = null;
                 authCard.style.display = 'block';
                 depositCard.style.display = 'none';
-                adminCard.style.display = 'none';
                 mainApp.style.display = 'none';
                 profileContainer.style.display = 'none';
             }
         });
 
-        // Payment Approval Logic (LocalStorage / Firebase State handling)
-        window.checkPaymentStatus = function() {
-            if(!currentUser) return;
-            
-            // Admin automatically granted access
-            if(currentUser.email.toLowerCase() === window.ADMIN_EMAIL.toLowerCase()) {
-                depositCard.style.display = 'none';
-                mainApp.style.display = 'flex';
-                return;
-            }
-
-            const userStatus = localStorage.getItem('user_status_' + currentUser.uid) || 'unpaid';
-
-            if(userStatus === 'approved') {
-                depositCard.style.display = 'none';
-                mainApp.style.display = 'flex';
-            } else {
-                mainApp.style.display = 'none';
-                depositCard.style.display = 'block';
-                
-                const statusBadge = document.getElementById('deposit-status');
-                if(userStatus === 'pending') {
-                    statusBadge.style.display = 'inline-block';
-                    statusBadge.className = 'status-badge status-pending';
-                    statusBadge.innerText = '⏳ 审核中 / Pending Approval';
-                } else if(userStatus === 'rejected') {
-                    statusBadge.style.display = 'inline-block';
-                    statusBadge.className = 'status-badge status-rejected';
-                    statusBadge.innerText = '❌ 已拒绝 / Rejected. Please re-upload.';
-                } else {
-                    statusBadge.style.display = 'none';
-                }
-            }
-        };
-
-        // Submit Payment Proof
-        window.submitProof = function() {
-            const preview = document.getElementById('proof-preview');
-            if(!preview.src || preview.style.display === 'none') {
-                alert("ကျေးဇူးပြု၍ စခရင်ရှော့ပုံ တင်ပေးပါ / Please upload screenshot");
-                return;
-            }
-
-            // Save Request to Database / LocalStorage
-            const requests = JSON.parse(localStorage.getItem('payment_requests') || '[]');
-            
-            // Remove previous if exists
-            const filtered = requests.filter(r => r.uid !== currentUser.uid);
-            filtered.push({
-                uid: currentUser.uid,
-                email: currentUser.email,
-                image: preview.src,
-                date: new Date().toLocaleString()
-            });
-
-            localStorage.setItem('payment_requests', JSON.stringify(filtered));
-            localStorage.setItem('user_status_' + currentUser.uid, 'pending');
-
-            alert("စခရင်ရှော့ ပို့ပြီးပါပြီ။ Admin အတည်ပြုပေးသည်အထိ စောင့်ဆိုင်းပေးပါ။");
-            window.checkPaymentStatus();
-        };
-
-        // Admin Panel Functions
-        window.toggleAdminPanel = function() {
-            if(adminCard.style.display === 'block') {
-                adminCard.style.display = 'none';
-                window.checkPaymentStatus();
-            } else {
-                mainApp.style.display = 'none';
-                depositCard.style.display = 'none';
-                adminCard.style.display = 'block';
-                window.loadAdminRequests();
-            }
-        };
-
-        window.loadAdminRequests = function() {
-            const list = document.getElementById('admin-req-list');
-            const requests = JSON.parse(localStorage.getItem('payment_requests') || '[]');
-            list.innerHTML = '';
-
-            if(requests.length === 0) {
-                list.innerHTML = '<p style="color:var(--text-muted); text-align:center;">မနီးသေးပါ / No pending payments</p>';
-                return;
-            }
-
-            requests.forEach(req => {
-                const item = document.createElement('div');
-                item.className = 'admin-req-card';
-                item.innerHTML = `
-                    <p><b>User:</b> ${req.email}</p>
-                    <p style="font-size:11px; color:var(--text-muted);"><b>Date:</b> ${req.date}</p>
-                    <img src="${req.image}" style="width:100%; max-height:150px; object-fit:contain; border-radius:6px; margin:8px 0;">
-                    <div class="admin-actions">
-                        <button class="btn btn-success" style="padding:8px; margin:0;" onclick="approveUser('${req.uid}')">Approve / လက်ခံမည်</button>
-                        <button class="btn logout-btn" style="padding:8px; margin:0;" onclick="rejectUser('${req.uid}')">Reject / ငြင်းပယ်မည်</button>
-                    </div>
-                `;
-                list.appendChild(item);
-            });
-        };
-
-        window.approveUser = function(uid) {
-            localStorage.setItem('user_status_' + uid, 'approved');
-            removeRequest(uid);
-            alert("အကောင့်ကို အတည်ပြုပေးလိုက်ပါပြီ!");
-            window.loadAdminRequests();
-        };
-
-        window.rejectUser = function(uid) {
-            localStorage.setItem('user_status_' + uid, 'rejected');
-            removeRequest(uid);
-            alert("အကောင့်ကို ငြင်းပယ်လိုက်ပါပြီ!");
-            window.loadAdminRequests();
-        };
-
-        function removeRequest(uid) {
-            let requests = JSON.parse(localStorage.getItem('payment_requests') || '[]');
-            requests = requests.filter(r => r.uid !== uid);
-            localStorage.setItem('payment_requests', JSON.stringify(requests));
-        }
-
-        window.toggleAdminPanel = window.toggleAdminPanel;
+        window.userStatus = function() { return userStatus; };
     </script>
 </head>
 <body>
@@ -787,11 +717,6 @@
         <h3 id="page-title" style="margin:0;">14位订单生成器</h3>
         
         <div class="control-group">
-            <!-- Admin Switch Button (Shown to Owner) -->
-            <button id="admin-nav-btn" class="select-box" style="display:none; background:#f59e0b; color:#000; font-weight:bold;" onclick="toggleAdminPanel()">
-                <i class="fa-solid fa-user-shield"></i> Admin Panel
-            </button>
-
             <!-- Digits Selector -->
             <select class="select-box" onchange="changeDigits(this.value)">
                 <option value="20">20 Digits / 位</option>
@@ -824,6 +749,7 @@
                         <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                         <p class="user-email-text" id="user-email"></p>
                         
+                        <!-- Remove Photo Button -->
                         <button class="menu-btn remove-photo-btn" id="remove-photo-btn">
                             <i class="fa-solid fa-trash-can"></i>
                             <span id="remove-photo-text">移除头像</span>
@@ -877,42 +803,26 @@
         <div class="auth-toggle" id="toggle-auth">没有账号？点击注册</div>
     </div>
 
-    <!-- Deposit / Verification Form Card -->
-    <div class="deposit-container" id="deposit-card" style="display: none;">
+    <!-- USDT Deposit & Approval Page -->
+    <div class="deposit-container" id="deposit-card">
+        <div class="status-badge" id="status-badge">等待管理员审核中...</div>
         <div class="auth-header">
-            <h2>USDT 充值激活账号</h2>
-            <p>အသုံးပြုရန် Binance USDT Address ထို့ငွေလွှဲပြီး စခရင်ရှော့ပုံ ပေးပို့ပါ</p>
+            <h2 id="deposit-title">充值/续费 USDT</h2>
+            <p id="deposit-desc">您的账号未激活或使用期限已过期，请转账以继续使用。</p>
         </div>
 
-        <div style="text-align: center;">
-            <div id="deposit-status" class="status-badge" style="display: none;"></div>
+        <p style="font-size: 13px; margin-bottom: 5px;" id="usdt-label">USDT 接收地址 (BEP20/TRC20):</p>
+        <div class="address-box">
+            <span id="binance-address">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span>
+            <button class="copy-btn" id="copy-addr-btn">复制</button>
         </div>
 
-        <div class="binance-card">
-            <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 5px 0;">Binance USDT (TRC20 / BEP20) Address:</p>
-            <div class="address-box">
-                <span id="usdt-addr-text">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span>
-                <button class="copy-icon-btn" onclick="copyAddress()"><i class="fa-regular fa-copy"></i></button>
-            </div>
+        <div class="input-group" style="margin-top: 20px;">
+            <p style="font-size: 13px; margin-bottom: 5px;">Upload Payment Screenshot:</p>
+            <input type="file" id="proof-file" accept="image/*">
         </div>
 
-        <label for="proof-file-input" class="upload-box">
-            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 24px; color: var(--primary);"></i>
-            <p style="font-size: 13px; margin: 8px 0 0 0; color: var(--text-muted);">ငွေလွှဲပြီးသည့် စခရင်ရှော့ပုံ တင်ရန် နှိပ်ပါ<br><small>(Click to upload payment screenshot)</small></p>
-            <img id="proof-preview" class="upload-preview" alt="Preview">
-        </label>
-        <input type="file" id="proof-file-input" accept="image/*" style="display: none;" onchange="previewProof(event)">
-
-        <button class="btn btn-primary" onclick="submitProof()">提交证明 / Submit Proof</button>
-    </div>
-
-    <!-- Admin Approval Dashboard Panel (Owner Only) -->
-    <div class="admin-container" id="admin-card" style="display: none;">
-        <div class="auth-header">
-            <h2><i class="fa-solid fa-user-shield"></i> Admin Panel</h2>
-            <p>ငွေလွှဲ စခရင်ရှော့များကို စစ်ဆေး၍ အတည်ပြုပေးရန်</p>
-        </div>
-        <div id="admin-req-list"></div>
+        <button class="btn btn-primary" id="submit-proof-btn">提交审核</button>
     </div>
 
     <!-- Main Generator Dashboard -->
@@ -926,29 +836,16 @@
         const container = document.getElementById('container');
         const toast = document.getElementById('toast');
 
-        // Set Address Text on Load
-        document.getElementById('usdt-addr-text').innerText = window.USDT_ADDRESS;
-
-        function copyAddress() {
-            navigator.clipboard.writeText(window.USDT_ADDRESS).then(() => {
-                alert("USDT Address ကူးယူပြီးပါပြီ!");
-            });
-        }
-
-        function previewProof(e) {
-            const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    const img = document.getElementById('proof-preview');
-                    img.src = evt.target.result;
-                    img.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
         function copyToClipboard(text) {
+            if(window.userStatus && window.userStatus() !== 'approved') {
+                const isZh = window.currentLang === 'zh';
+                alert(isZh ? 
+                    "使用期限已过期或未激活！请先充值 USDT 并在管理员确认后继续使用。" : 
+                    "Membership expired or inactive! Please deposit USDT and wait for owner approval."
+                );
+                return;
+            }
+
             navigator.clipboard.writeText(text).then(() => {
                 toast.style.display = 'block';
                 setTimeout(() => { toast.style.display = 'none'; }, 1200);
@@ -985,7 +882,7 @@
             card.className = 'order-card';
             card.innerHTML = `
                 <span class="card-label">● 实时生成14位编号</span>
-                <div class="card-number" id="num-${i}">Loading...</div>
+                <div class="card-number locked" id="num-${i}">Loading...</div>
             `;
             card.onclick = function() {
                 const numText = document.getElementById(`num-${i}`).innerText;
