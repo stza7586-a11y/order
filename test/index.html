@@ -64,18 +64,34 @@
             position: relative;
             display: none;
         }
-        .profile-btn {
+
+        /* Avatar Container (Used for both Img & Letter) */
+        .avatar-box {
             width: 38px;
             height: 38px;
             border-radius: 50%;
             border: 2px solid var(--primary);
             cursor: pointer;
-            object-fit: cover;
             transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #6366f1;
+            overflow: hidden;
+            user-select: none;
         }
-        .profile-btn:hover {
+        .avatar-box:hover {
             transform: scale(1.05);
         }
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .dropdown-menu {
             position: absolute;
             top: 48px;
@@ -108,13 +124,27 @@
             position: relative;
             cursor: pointer;
         }
-        .dropdown-avatar {
+        .dropdown-avatar-box {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            object-fit: cover;
             border: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 22px;
+            color: #ffffff;
+            background-color: #6366f1;
+            overflow: hidden;
+            user-select: none;
         }
+        .dropdown-avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .avatar-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -126,7 +156,7 @@
             opacity: 0;
             transition: opacity 0.2s;
             color: #fff;
-            font-size: 12px;
+            font-size: 14px;
         }
         .avatar-preview-wrapper:hover .avatar-overlay {
             opacity: 1;
@@ -177,6 +207,18 @@
         }
         .menu-btn:hover {
             background: #475569;
+        }
+        .remove-photo-btn {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            font-size: 11px;
+            padding: 4px 8px;
+            margin-top: 4px;
+        }
+        .remove-photo-btn:hover {
+            background: #ef4444;
+            color: white;
         }
         .logout-btn {
             background: #ef4444;
@@ -324,6 +366,7 @@
                 toggleLogin: "已有账号？点击登录",
                 logout: "退出登录",
                 switchAcc: "切换账号",
+                removePhoto: "移除头像",
                 fontSize: "字体大小",
                 liveLabelPrefix: "● 实时生成",
                 liveLabelSuffix: "位编号",
@@ -348,6 +391,7 @@
                 toggleLogin: "Have an account? Sign in",
                 logout: "Log Out",
                 switchAcc: "Switch Account",
+                removePhoto: "Remove Photo",
                 fontSize: "Font Size",
                 liveLabelPrefix: "● Live ",
                 liveLabelSuffix: "-Digit Order ID",
@@ -364,7 +408,7 @@
         window.currentLang = "zh";
         window.selectedDigits = 14;
         let isSignUpMode = false;
-        let currentUserUid = null;
+        let currentUser = null;
 
         window.getErrorMessage = function(code) {
             const t = i18n[window.currentLang];
@@ -390,6 +434,7 @@
             document.getElementById('toggle-auth').innerText = isSignUpMode ? t.toggleLogin : t.toggleSignUp;
             document.getElementById('logout-btn-text').innerText = t.logout;
             document.getElementById('switch-acc-text').innerText = t.switchAcc;
+            document.getElementById('remove-photo-text').innerText = t.removePhoto;
             document.getElementById('font-size-label').innerText = t.fontSize;
             document.getElementById('footer-tip').innerText = t.clickCopy;
             document.getElementById('toast').innerText = t.copied;
@@ -409,6 +454,34 @@
         window.changeDigits = function(digits) {
             window.selectedDigits = parseInt(digits);
             window.updateUI();
+        };
+
+        // Render Avatar Logic (Image or Gmail Style First Letter)
+        window.renderAvatar = function() {
+            if(!currentUser) return;
+            
+            const savedAvatar = localStorage.getItem('custom_avatar_' + currentUser.uid);
+            const removeFlag = localStorage.getItem('remove_photo_' + currentUser.uid);
+            
+            let finalPhoto = null;
+            if(!removeFlag && savedAvatar) {
+                finalPhoto = savedAvatar;
+            } else if(!removeFlag && currentUser.photoURL) {
+                finalPhoto = currentUser.photoURL;
+            }
+
+            const initialLetter = (currentUser.email ? currentUser.email.charAt(0) : 'U').toUpperCase();
+            const removeBtn = document.getElementById('remove-photo-btn');
+
+            if (finalPhoto) {
+                document.getElementById('profile-btn').innerHTML = `<img src="${finalPhoto}" alt="Avatar">`;
+                document.getElementById('dropdown-avatar-img').innerHTML = `<img src="${finalPhoto}" alt="Avatar">`;
+                removeBtn.style.display = 'flex'; // Show remove button if photo exists
+            } else {
+                document.getElementById('profile-btn').innerHTML = initialLetter;
+                document.getElementById('dropdown-avatar-img').innerHTML = initialLetter;
+                removeBtn.style.display = 'none'; // Hide remove button if no custom photo
+            }
         };
 
         const authCard = document.getElementById('auth-card');
@@ -448,10 +521,19 @@
             document.getElementById('dropdown-menu').classList.remove('show');
         });
 
-        // Switch Account (Sign out and show login)
+        // Switch Account
         document.getElementById('switch-acc-btn').addEventListener('click', () => {
             signOut(auth);
             document.getElementById('dropdown-menu').classList.remove('show');
+        });
+
+        // Remove Profile Photo
+        document.getElementById('remove-photo-btn').addEventListener('click', () => {
+            if (currentUser) {
+                localStorage.removeItem('custom_avatar_' + currentUser.uid);
+                localStorage.setItem('remove_photo_' + currentUser.uid, 'true');
+                window.renderAvatar();
+            }
         });
 
         // Profile Dropdown Toggle
@@ -468,19 +550,17 @@
             document.getElementById('dropdown-menu').classList.remove('show');
         });
 
-        // Unique Image Upload Logic per User UID
+        // Unique Image Upload Logic
         const avatarUpload = document.getElementById('avatar-upload');
         avatarUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if(file && currentUserUid) {
+            if(file && currentUser) {
                 const reader = new FileReader();
                 reader.onload = function(evt) {
                     const customImgData = evt.target.result;
-                    document.getElementById('profile-btn').src = customImgData;
-                    document.getElementById('dropdown-avatar-img').src = customImgData;
-                    
-                    // Save custom avatar mapped specifically to the logged-in User UID
-                    localStorage.setItem('custom_avatar_' + currentUserUid, customImgData);
+                    localStorage.setItem('custom_avatar_' + currentUser.uid, customImgData);
+                    localStorage.removeItem('remove_photo_' + currentUser.uid);
+                    window.renderAvatar();
                 };
                 reader.readAsDataURL(file);
             }
@@ -507,21 +587,15 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUserUid = user.uid;
+                currentUser = user;
                 authCard.style.display = 'none';
                 mainApp.style.display = 'flex';
                 profileContainer.style.display = 'block';
                 document.getElementById('user-email').innerText = user.email;
 
-                // Load user-specific avatar using UID
-                const savedAvatar = localStorage.getItem('custom_avatar_' + user.uid);
-                const defaultPhoto = user.photoURL || 'https://via.placeholder.com/50/4f46e5/fff?text=U';
-                const finalPhoto = savedAvatar || defaultPhoto;
-
-                document.getElementById('profile-btn').src = finalPhoto;
-                document.getElementById('dropdown-avatar-img').src = finalPhoto;
+                window.renderAvatar();
             } else {
-                currentUserUid = null;
+                currentUser = null;
                 authCard.style.display = 'block';
                 mainApp.style.display = 'none';
                 profileContainer.style.display = 'none';
@@ -555,17 +629,23 @@
 
             <!-- Profile Avatar with Dropdown -->
             <div class="user-dropdown-container" id="profile-container">
-                <img id="profile-btn" class="profile-btn" src="" alt="User Profile">
+                <div id="profile-btn" class="avatar-box">U</div>
                 
                 <div class="dropdown-menu" id="dropdown-menu">
                     <!-- Avatar Upload & Info -->
                     <div class="avatar-upload-section">
                         <label for="avatar-upload" class="avatar-preview-wrapper" title="Click to change photo">
-                            <img id="dropdown-avatar-img" class="dropdown-avatar" src="" alt="Avatar">
+                            <div id="dropdown-avatar-img" class="dropdown-avatar-box">U</div>
                             <div class="avatar-overlay"><i class="fa-solid fa-camera"></i></div>
                         </label>
                         <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                         <p class="user-email-text" id="user-email"></p>
+                        
+                        <!-- Remove Photo Button -->
+                        <button class="menu-btn remove-photo-btn" id="remove-photo-btn">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span id="remove-photo-text">移除头像</span>
+                        </button>
                     </div>
 
                     <!-- Font Size Setting -->
