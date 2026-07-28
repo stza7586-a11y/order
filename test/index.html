@@ -3,134 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>14位订单生成器</title>
+    <title>14-Digit Order Generator</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #10b981;
+        }
+
         body {
-            font-family: sans-serif;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
-            background-color: #f4f6f8;
-            margin: 0;
+            min-height: 100vh;
         }
 
-        /* Login Card UI */
-        #login-card {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-            margin-top: 60px;
-            width: 320px;
-        }
-        .google-btn {
-            background-color: #4285F4;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            font-size: 15px;
-            cursor: pointer;
+        /* Top Bar & Language Selector */
+        .top-nav {
             width: 100%;
-            margin-top: 15px;
-            font-weight: bold;
-            transition: background 0.2s;
+            max-width: 900px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            margin-bottom: 20px;
         }
-        .google-btn:hover {
-            background-color: #357ae8;
+        .lang-select {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid #334155;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            outline: none;
         }
 
-        /* User Header Bar */
+        /* Modern Auth Card */
+        .auth-container {
+            background: var(--card-bg);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin-top: 40px;
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .auth-header h2 { margin: 0 0 10px 0; font-size: 24px; }
+        .auth-header p { color: var(--text-muted); font-size: 14px; margin: 0; }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #fff;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .input-group input:focus { border-color: var(--primary); }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 10px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-google { background: #ffffff; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-google:hover { background: #f1f5f9; }
+
+        .auth-toggle {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        /* User Header Area */
         #user-bar {
             display: none;
             width: 100%;
-            max-width: 400px;
+            max-width: 900px;
+            background: var(--card-bg);
+            border: 1px solid #334155;
+            padding: 12px 20px;
+            border-radius: 12px;
             justify-content: space-between;
             align-items: center;
-            background: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             box-sizing: border-box;
         }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-        }
-        .logout-btn {
-            background: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
+        .user-profile { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; }
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
 
-        /* Generator Main App (Hidden until login) */
-        #main-app {
-            display: none;
-            flex-direction: column;
-            align-items: center;
+        /* Generator Grid */
+        #main-app { display: none; width: 100%; max-width: 900px; flex-direction: column; align-items: center; }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px;
+            width: 100%;
         }
-
-        .order-box {
-            border: 2px dashed #4CAF50;
-            border-radius: 15px;
-            padding: 15px 30px;
-            margin: 10px;
-            width: 380px;
+        .order-card {
+            background: var(--card-bg);
+            border: 1px dashed var(--accent);
+            border-radius: 12px;
+            padding: 15px;
             text-align: center;
             cursor: pointer;
-            background-color: #fff;
-            transition: background 0.2s;
+            transition: transform 0.2s, background 0.2s;
         }
-        .order-box:hover {
-            background-color: #f0fdf4;
+        .order-card:hover {
+            transform: translateY(-3px);
+            background: #243347;
         }
-        .label {
-            color: #4CAF50;
-            font-size: 16px;
-            margin-bottom: 5px;
-            display: block;
-        }
-        .number {
-            font-size: 30px;
-            font-weight: bold;
-            color: #333;
-            letter-spacing: 1px;
-        }
+        .card-label { color: var(--accent); font-size: 13px; margin-bottom: 8px; display: block; }
+        .card-number { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: #fff; }
+
         #toast {
             position: fixed;
             top: 20px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 30px;
             display: none;
-            z-index: 100;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
         }
     </style>
 
-    <!-- Firebase Script Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged,
+            createUserWithEmailAndPassword, signInWithEmailAndPassword 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // သင့်ရဲ့ Firebase Config များ
         const firebaseConfig = {
             apiKey: "AIzaSyB4pKIXlL9sk7xIP7-Yrqs5yGfit1lE_YM",
             authDomain: "order-generator-47380.firebaseapp.com",
@@ -145,36 +183,112 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        const loginCard = document.getElementById('login-card');
+        // Dictionary (Chinese & English)
+        const i18n = {
+            zh: {
+                title: "14位订单生成器",
+                loginTitle: "登录账号",
+                loginDesc: "请登录以使用14位订单号生成系统",
+                emailPlaceholder: "邮箱地址",
+                passPlaceholder: "密码",
+                loginBtn: "登录",
+                signUpBtn: "注册账号",
+                googleBtn: "使用 Google 账号登录",
+                toggleSignUp: "没有账号？点击注册",
+                toggleLogin: "已有账号？点击登录",
+                logout: "退出登录",
+                liveLabel: "● 实时生成14位编号",
+                clickCopy: "(点击上面卡片复制，每秒自动更新)",
+                copied: "复制成功！",
+                alertEmpty: "请输入邮箱和密码"
+            },
+            en: {
+                title: "14-Digit Order Generator",
+                loginTitle: "Sign In",
+                loginDesc: "Please sign in to access the order generator",
+                emailPlaceholder: "Email Address",
+                passPlaceholder: "Password",
+                loginBtn: "Sign In",
+                signUpBtn: "Create Account",
+                googleBtn: "Sign in with Google",
+                toggleSignUp: "No account? Register here",
+                toggleLogin: "Have an account? Sign in",
+                logout: "Log Out",
+                liveLabel: "● Live 14-Digit Order ID",
+                clickCopy: "(Click card to copy, updates every second)",
+                copied: "Copied successfully!",
+                alertEmpty: "Please fill in email and password"
+            }
+        };
+
+        let currentLang = "zh";
+        let isSignUpMode = false;
+
+        window.changeLanguage = function(lang) {
+            currentLang = lang;
+            const t = i18n[lang];
+            document.getElementById('page-title').innerText = t.title;
+            document.getElementById('auth-title').innerText = isSignUpMode ? t.signUpBtn : t.loginTitle;
+            document.getElementById('auth-desc').innerText = t.loginDesc;
+            document.getElementById('email-input').placeholder = t.emailPlaceholder;
+            document.getElementById('pass-input').placeholder = t.passPlaceholder;
+            document.getElementById('submit-btn').innerText = isSignUpMode ? t.signUpBtn : t.loginBtn;
+            document.getElementById('google-text').innerText = t.googleBtn;
+            document.getElementById('toggle-auth').innerText = isSignUpMode ? t.toggleLogin : t.toggleSignUp;
+            document.getElementById('logout-btn').innerText = t.logout;
+            document.getElementById('footer-tip').innerText = t.clickCopy;
+            document.getElementById('toast').innerText = t.copied;
+            
+            document.querySelectorAll('.card-label').forEach(el => el.innerText = t.liveLabel);
+        };
+
+        // DOM elements
+        const authCard = document.getElementById('auth-card');
         const mainApp = document.getElementById('main-app');
         const userBar = document.getElementById('user-bar');
-        const userEmail = document.getElementById('user-email');
-        const userPhoto = document.getElementById('user-photo');
-        const loginBtn = document.getElementById('login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
+        const emailInput = document.getElementById('email-input');
+        const passInput = document.getElementById('pass-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const toggleAuth = document.getElementById('toggle-auth');
 
-        // Google Sign-In Event
-        loginBtn.addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch((error) => {
-                alert("Login မအောင်မြင်ပါ: " + error.message);
-            });
+        toggleAuth.addEventListener('click', () => {
+            isSignUpMode = !isSignUpMode;
+            window.changeLanguage(currentLang);
         });
 
-        // Sign Out Event
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth);
+        // Form Submit (Email/Pass)
+        submitBtn.addEventListener('click', () => {
+            const email = emailInput.value;
+            const pass = passInput.value;
+            if(!email || !pass) return alert(i18n[currentLang].alertEmpty);
+
+            if(isSignUpMode) {
+                createUserWithEmailAndPassword(auth, email, pass)
+                    .catch(e => alert("Error: " + e.message));
+            } else {
+                signInWithEmailAndPassword(auth, email, pass)
+                    .catch(e => alert("Error: " + e.message));
+            }
         });
 
-        // Check Auth State Change
+        // Google Sign-In
+        document.getElementById('google-btn').addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch(e => alert("Google Login Error: " + e.message));
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+        // Auth Monitor
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                loginCard.style.display = 'none';
+                authCard.style.display = 'none';
                 mainApp.style.display = 'flex';
                 userBar.style.display = 'flex';
-                userEmail.innerText = user.email;
-                userPhoto.src = user.photoURL || 'https://via.placeholder.com/32';
+                document.getElementById('user-email').innerText = user.email;
+                document.getElementById('user-avatar').src = user.photoURL || 'https://via.placeholder.com/36/4f46e5/fff?text=U';
             } else {
-                loginCard.style.display = 'block';
+                authCard.style.display = 'block';
                 mainApp.style.display = 'none';
                 userBar.style.display = 'none';
             }
@@ -183,28 +297,51 @@
 </head>
 <body>
 
-    <!-- 1. Login Area -->
-    <div id="login-card">
-        <h2 style="margin-top:0;">အကောင့်ဝင်ရန်</h2>
-        <p style="color: #666; font-size: 14px;">၁၄ လုံးပါ နံပါတ် ထုတ်ပေးသည့်စနစ်ကို အသုံးပြုရန် Gmail အကောင့်ဖြင့် မဖြစ်မနေ အရင်ဝင်ရောက်ပါ။</p>
-        <button class="google-btn" id="login-btn">
-            Sign in with Google
-        </button>
+    <div class="top-nav">
+        <h3 id="page-title" style="margin:0;">14位订单生成器</h3>
+        <select class="lang-select" onchange="changeLanguage(this.value)">
+            <option value="zh">中文 (တရုတ်)</option>
+            <option value="en">English (အင်္ဂလိပ်)</option>
+        </select>
     </div>
 
-    <!-- 2. Main Generator Area -->
-    <div id="user-bar">
-        <div class="user-info">
-            <img id="user-photo" class="user-avatar" src="" alt="Profile">
-            <span id="user-email" style="font-size: 13px; font-weight: bold; color: #333;"></span>
+    <!-- Auth Form Card -->
+    <div class="auth-container" id="auth-card">
+        <div class="auth-header">
+            <h2 id="auth-title">登录账号</h2>
+            <p id="auth-desc">请登录以使用14位订单号生成系统</p>
         </div>
-        <button class="logout-btn" id="logout-btn">Log Out</button>
+
+        <div class="input-group">
+            <input type="email" id="email-input" placeholder="邮箱地址">
+        </div>
+        <div class="input-group">
+            <input type="password" id="pass-input" placeholder="密码">
+        </div>
+
+        <button class="btn btn-primary" id="submit-btn">登录</button>
+        <button class="btn btn-google" id="google-btn">
+            <i class="fa-brands fa-google" style="color: #4285F4;"></i>
+            <span id="google-text">使用 Google 账号登录</span>
+        </button>
+
+        <div class="auth-toggle" id="toggle-auth">没有账号？点击注册</div>
     </div>
 
+    <!-- User Header Bar -->
+    <div id="user-bar">
+        <div class="user-profile">
+            <img id="user-avatar" class="avatar" src="" alt="User">
+            <span id="user-email" style="font-weight: 600;"></span>
+        </div>
+        <button class="logout-btn" id="logout-btn">退出登录</button>
+    </div>
+
+    <!-- Main Generator Dashboard -->
     <div id="main-app">
-        <div id="toast">复制成功</div>
-        <div id="container"></div>
-        <p style="color: #888; font-size: 14px;">(点击上方区域复制，14位编号每秒自动跳动)</p>
+        <div id="toast">复制成功！</div>
+        <div class="grid-container" id="container"></div>
+        <p id="footer-tip" style="color: var(--text-muted); font-size: 14px; margin-top: 20px;">(点击上面卡片复制，每秒自动更新)</p>
     </div>
 
     <script>
@@ -214,7 +351,7 @@
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 toast.style.display = 'block';
-                setTimeout(() => { toast.style.display = 'none'; }, 1000);
+                setTimeout(() => { toast.style.display = 'none'; }, 1200);
             });
         }
 
@@ -227,27 +364,27 @@
             const min = now.getMinutes().toString().padStart(2, '0');
             const ss = now.getSeconds().toString().padStart(2, '0');
             const randomPart = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-            
             return yy + mm + dd + hh + min + ss + randomPart;
         }
 
         for (let i = 0; i < 14; i++) {
-            const box = document.createElement('div');
-            box.className = 'order-box';
-            box.innerHTML = `
-                <span class="label">● 正在实时生成每秒唯一编号</span>
-                <div class="number" id="num-${i}">加载中...</div>
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.innerHTML = `
+                <span class="card-label">● 实时生成14位编号</span>
+                <div class="card-number" id="num-${i}">Loading...</div>
             `;
-            box.onclick = function() {
+            card.onclick = function() {
                 const numText = document.getElementById(`num-${i}`).innerText;
                 copyToClipboard(numText);
             };
-            container.appendChild(box);
+            container.appendChild(card);
         }
 
         function updateAll() {
             for (let i = 0; i < 14; i++) {
-                document.getElementById(`num-${i}`).innerText = generate14DigitOrder();
+                const el = document.getElementById(`num-${i}`);
+                if(el) el.innerText = generate14DigitOrder();
             }
         }
 
