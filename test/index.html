@@ -498,18 +498,38 @@
         let currentUser = null;
         let userStatus = "pending";
 
-        window.generateRandomDigits = function(length) {
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += Math.floor(Math.random() * 10);
+        // နှစ် + လ + ရက် + နာရီ + မိနစ် + စက်ကန့် + မီလီစက်ကန့် ပုံစံဖြင့် ဂဏန်းထုတ်လုပ်ခြင်း
+        window.generateDateTimeDigits = function(targetLength) {
+            const now = new Date();
+            const year = now.getFullYear().toString();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+
+            // နှစ်၊ လ၊ ရက်၊ နာရီ၊ မိနစ်၊ စက်ကန့်၊ မီလီစက်ကန့် စာသား ပေါင်းစပ်မှု
+            let baseString = `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
+
+            // ရွေးချယ်ထားသော စာလုံးအရေအတွက် (targetLength) အတိုင်း ညှိယူခြင်း
+            if (baseString.length < targetLength) {
+                // အကယ်၍ လိုအပ်သော ဂဏန်းအရှည်ထက် နည်းနေပါက အနောက်တွင် Random ဂဏန်းဖြည့်ပေးခြင်း
+                while (baseString.length < targetLength) {
+                    baseString += Math.floor(Math.random() * 10).toString();
+                }
+            } else if (baseString.length > targetLength) {
+                // လိုအပ်သည်ထက် ပိုနေပါက ရှေ့ဘက်မှ ဖြတ်ယူခြင်း
+                baseString = baseString.substring(0, targetLength);
             }
-            return result;
+
+            return baseString;
         };
 
         window.updateAllNumbers = function() {
             const digits = window.selectedDigits;
             document.querySelectorAll('.card-number').forEach(el => {
-                el.innerText = window.generateRandomDigits(digits);
+                el.innerText = window.generateDateTimeDigits(digits);
             });
         };
 
@@ -831,19 +851,17 @@
             </select>
 
             <div class="user-dropdown-container" id="profile-container">
-                <div id="profile-btn" class="avatar-box">U</div>
-                
+                <div class="avatar-box" id="profile-btn">U</div>
                 <div class="dropdown-menu" id="dropdown-menu">
                     <div class="avatar-upload-section">
-                        <label for="avatar-upload" class="avatar-preview-wrapper" title="Click to change photo">
-                            <div id="dropdown-avatar-img" class="dropdown-avatar-box">U</div>
+                        <label for="avatar-upload" class="avatar-preview-wrapper">
+                            <div class="dropdown-avatar-box" id="dropdown-avatar-img">U</div>
                             <div class="avatar-overlay"><i class="fa-solid fa-camera"></i></div>
                         </label>
                         <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                         <p class="user-email-text" id="user-email">user@example.com</p>
-                        <button class="menu-btn remove-photo-btn" id="remove-photo-btn">
-                            <i class="fa-solid fa-trash"></i>
-                            <span id="remove-photo-text">移除头像</span>
+                        <button class="menu-btn remove-photo-btn" id="remove-photo-btn" style="display: none;">
+                            <i class="fa-solid fa-trash"></i> <span id="remove-photo-text">移除头像</span>
                         </button>
                     </div>
 
@@ -852,23 +870,21 @@
                             <span id="font-size-label">字体大小</span>
                             <span id="font-size-val">20px</span>
                         </div>
-                        <input type="range" id="font-size-slider" class="slider-input" min="12" max="32" value="20">
+                        <input type="range" min="14" max="28" value="20" class="slider-input" id="font-size-slider">
                     </div>
 
                     <button class="menu-btn" id="switch-acc-btn">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                        <span id="switch-acc-text">切换账号</span>
+                        <i class="fa-solid fa-users"></i> <span id="switch-acc-text">切换账号</span>
                     </button>
                     <button class="menu-btn logout-btn" id="logout-btn">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span id="logout-btn-text">退出登录</span>
+                        <i class="fa-solid fa-right-from-bracket"></i> <span id="logout-btn-text">退出登录</span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Authentication Card -->
+    <!-- Auth System Card -->
     <div class="auth-container" id="auth-card">
         <div class="auth-header">
             <h2 id="auth-title">登录账号</h2>
@@ -888,59 +904,100 @@
         <div class="auth-toggle" id="toggle-auth">没有账号？点击注册</div>
     </div>
 
-    <!-- Main App Container -->
+    <!-- Main Generator Dashboard -->
     <div id="main-app">
         <div class="status-banner" id="status-banner">
             您的账号正在审核/未激活状态，请进行 USDT 充值以解锁功能。
         </div>
 
+        <!-- အလျားလိုက် ၁၅ ကြောင်း အတန်းလိုက် Card များ -->
         <div class="vertical-container">
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
-                <span class="card-number">00000000000000</span>
+                <span class="card-number">...</span>
             </div>
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
-                <span class="card-number">00000000000000</span>
+                <span class="card-number">...</span>
             </div>
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
-                <span class="card-number">00000000000000</span>
+                <span class="card-number">...</span>
             </div>
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
-                <span class="card-number">00000000000000</span>
+                <span class="card-number">...</span>
             </div>
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
-                <span class="card-number">00000000000000</span>
+                <span class="card-number">...</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">...</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">...</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">...</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">...</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">...</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">...</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">...</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">...</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">...</span>
+            </div>
+            <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
+                <span class="card-label">● 实时生成 14 位编号</span>
+                <span class="card-number">...</span>
             </div>
         </div>
 
         <div class="footer-tip" id="footer-tip">(点击卡片复制，每秒自动更新)</div>
     </div>
 
-    <!-- Deposit Modal Popup -->
+    <!-- Deposit Modal -->
     <div class="modal-overlay" id="deposit-modal">
         <div class="modal-content">
             <span class="modal-close" id="modal-close-btn">&times;</span>
             <h3 id="deposit-title" style="margin-top:0;">USDT 充值 / 续费</h3>
-            <p id="deposit-desc" style="font-size:13px; color:var(--text-muted);">
-                请转账 USDT 到以下地址，并上传转账截图。确认后将开通权限。
-            </p>
-
-            <label id="usdt-label" style="font-size:12px; color:var(--text-muted);">Binance USDT 地址 (BEP20/TRC20):</label>
-            <div class="address-box">
-                <span id="binance-address">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span>
-                <button class="copy-btn" id="copy-addr-btn">复制</button>
+            <p id="deposit-desc" style="font-size: 13px; color: var(--text-muted);">请转账 USDT 到以下地址，并上传转账截图。确认后将开通权限。</p>
+            
+            <div class="setting-item" style="border: none;">
+                <label id="usdt-label">Binance USDT 地址 (BEP20/TRC20):</label>
+                <div class="address-box">
+                    <span id="binance-address">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span>
+                    <button class="copy-btn" id="copy-addr-btn">复制</button>
+                </div>
             </div>
 
-            <div style="margin-top:15px;">
-                <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">上传转账截图 (Proof):</label>
-                <input type="file" id="proof-file" accept="image/*" style="font-size:12px; color:var(--text-muted);">
+            <div class="input-group">
+                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;" id="upload-proof-label">上传转账截图 (Proof):</label>
+                <input type="file" id="proof-file" accept="image/*">
             </div>
 
-            <button class="btn btn-primary" id="submit-proof-btn" style="margin-top:20px; margin-bottom:0;">提交审核</button>
+            <button class="btn btn-primary" id="submit-proof-btn" style="margin-bottom: 0;">提交审核</button>
         </div>
     </div>
 
