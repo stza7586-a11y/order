@@ -56,7 +56,6 @@
             cursor: pointer;
         }
 
-        /* USDT Deposit ခလုတ်ကို မထင်မရှား အနည်းငယ်သေးငယ်အောင် ပြင်ဆင်ထားသော CSS */
         .deposit-trigger-btn {
             background: transparent !important;
             border: 1px dashed var(--border-color) !important;
@@ -142,6 +141,7 @@
 
         .input-group {
             margin-bottom: 15px;
+            position: relative;
         }
 
         .input-group input {
@@ -152,6 +152,31 @@
             color: var(--text-main);
             border-radius: 5px;
             box-sizing: border-box;
+        }
+
+        /* Password Eye Icon အတွက် CSS Styling */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-wrapper input {
+            padding-right: 40px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+            font-size: 14px;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-main);
         }
 
         .btn {
@@ -167,7 +192,6 @@
         .btn-primary { background: var(--primary-btn); color: white; }
         .btn-google { background: #ea4335; color: white; }
 
-        /* Status Banner ကို မထင်မရှား အနည်းငယ်သေးငယ်အောင် ပြင်ဆင်ထားသော CSS */
         .status-banner {
             background: rgba(30, 41, 59, 0.5);
             color: var(--text-muted);
@@ -379,6 +403,22 @@
             }
         }
 
+        // Password Show/Hide Toggle Logic
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('pass-input');
+            const toggleIcon = document.getElementById('toggle-pass-icon');
+            
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             setInterval(updateOrderNumbers, 1000);
             updateOrderNumbers();
@@ -502,9 +542,15 @@
         <div class="input-group">
             <input type="email" id="email-input" placeholder="邮箱地址">
         </div>
-        <div class="input-group">
+        
+        <!-- Password Field with Toggle Eye Icon -->
+        <div class="input-group password-wrapper">
             <input type="password" id="pass-input" placeholder="密码">
+            <span class="toggle-password" onclick="togglePasswordVisibility()">
+                <i class="fa-solid fa-eye" id="toggle-pass-icon"></i>
+            </span>
         </div>
+
         <button class="btn btn-primary" id="submit-btn">登录</button>
         <button class="btn btn-google" id="google-btn">
             <i class="fa-brands fa-google"></i>
