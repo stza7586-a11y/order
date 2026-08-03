@@ -154,7 +154,6 @@
             box-sizing: border-box;
         }
 
-        /* Password Eye Icon အတွက် CSS Styling */
         .password-wrapper {
             position: relative;
             width: 100%;
@@ -192,6 +191,18 @@
         .btn-primary { background: var(--primary-btn); color: white; }
         .btn-google { background: #ea4335; color: white; }
 
+        .auth-toggle {
+            color: var(--accent-color);
+            font-size: 13px;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .auth-toggle:hover {
+            text-decoration: underline;
+        }
+
         .status-banner {
             background: rgba(30, 41, 59, 0.5);
             color: var(--text-muted);
@@ -228,6 +239,13 @@
             justify-content: center;
             font-weight: bold;
             cursor: pointer;
+            overflow: hidden;
+        }
+
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .dropdown-menu {
@@ -262,10 +280,125 @@
         .copy-btn { background: var(--primary-btn); color: white; border: none; border-radius: 3px; cursor: pointer; }
     </style>
 
+    <!-- Firebase SDK Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signInWithPopup, 
+            GoogleAuthProvider, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Firebase Configuration (Replace with your own project config)
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        let isRegisterMode = false;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const submitBtn = document.getElementById('submit-btn');
+            const googleBtn = document.getElementById('google-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const switchAccBtn = document.getElementById('switch-acc-btn');
+            const toggleAuthBtn = document.getElementById('toggle-auth');
+            const emailInput = document.getElementById('email-input');
+            const passInput = document.getElementById('pass-input');
+
+            // Authentication state observer
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    setLoginState(true);
+                    document.getElementById('user-email').innerText = user.email || 'User';
+                    const profileBtn = document.getElementById('profile-btn');
+                    if (user.photoURL) {
+                        profileBtn.innerHTML = `<img src="${user.photoURL}" alt="avatar">`;
+                    } else {
+                        profileBtn.innerText = (user.email ? user.email[0] : 'U').toUpperCase();
+                    }
+                } else {
+                    setLoginState(false);
+                }
+            });
+
+            // Handle Email/Password Login & Register
+            submitBtn.addEventListener('click', async () => {
+                const email = emailInput.value.trim();
+                const password = passInput.value.trim();
+
+                if (!email || !password) {
+                    alert('Please enter both Email and Password');
+                    return;
+                }
+
+                try {
+                    if (isRegisterMode) {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                        alert('Account created successfully!');
+                    } else {
+                        await signInWithEmailAndPassword(auth, email, password);
+                    }
+                } catch (error) {
+                    alert('Authentication Error: ' + error.message);
+                }
+            });
+
+            // Handle Google Login
+            googleBtn.addEventListener('click', async () => {
+                try {
+                    await signInWithPopup(auth, googleProvider);
+                } catch (error) {
+                    alert('Google Sign-In Error: ' + error.message);
+                }
+            });
+
+            // Handle Logout & Switch Account
+            const handleSignOut = async () => {
+                try {
+                    await signOut(auth);
+                } catch (error) {
+                    alert('Logout Error: ' + error.message);
+                }
+            };
+
+            logoutBtn.addEventListener('click', handleSignOut);
+            switchAccBtn.addEventListener('click', handleSignOut);
+
+            // Toggle Login / Register UI Mode
+            toggleAuthBtn.addEventListener('click', () => {
+                isRegisterMode = !isRegisterMode;
+                const lang = window.currentLang || 'zh';
+                if (isRegisterMode) {
+                    document.getElementById('auth-title').innerText = lang === 'en' ? 'Register Account' : '注册账号';
+                    document.getElementById('submit-btn').innerText = lang === 'en' ? 'Register' : '注册';
+                    toggleAuthBtn.innerText = lang === 'en' ? 'Already have an account? Click to login' : '已有账号？点击登录';
+                } else {
+                    document.getElementById('auth-title').innerText = lang === 'en' ? 'Account Login' : '登录账号';
+                    document.getElementById('submit-btn').innerText = lang === 'en' ? 'Login' : '登录';
+                    toggleAuthBtn.innerText = lang === 'en' ? 'No account? Click to register' : '没有账号？点击注册';
+                }
+            });
+        });
+    </script>
+
     <script>
         const MY_BINANCE_USDT_ADDRESS = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F";
         let currentDigits = 14;
         let currentLang = 'zh';
+        window.currentLang = currentLang;
 
         const msOffsets = Array.from({ length: 15 }, () => Math.floor(Math.random() * 999));
 
@@ -333,6 +466,7 @@
 
         function changeLanguage(lang) {
             currentLang = lang;
+            window.currentLang = lang;
             updateTitlesAndLabels();
 
             if (lang === 'en') {
@@ -403,7 +537,6 @@
             }
         }
 
-        // Password Show/Hide Toggle Logic
         function togglePasswordVisibility() {
             const passInput = document.getElementById('pass-input');
             const toggleIcon = document.getElementById('toggle-pass-icon');
@@ -447,26 +580,6 @@
                     document.getElementById('font-size-val').innerText = val;
                 });
             }
-
-            const submitBtn = document.getElementById('submit-btn');
-            const googleBtn = document.getElementById('google-btn');
-            const logoutBtn = document.getElementById('logout-btn');
-            const switchAccBtn = document.getElementById('switch-acc-btn');
-
-            if (submitBtn) {
-                submitBtn.addEventListener('click', () => setLoginState(true));
-            }
-            if (googleBtn) {
-                googleBtn.addEventListener('click', () => setLoginState(true));
-            }
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => setLoginState(false));
-            }
-            if (switchAccBtn) {
-                switchAccBtn.addEventListener('click', () => setLoginState(false));
-            }
-
-            setLoginState(false);
         });
     </script>
 </head>
