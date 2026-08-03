@@ -1,823 +1,336 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title-tag">Order Generator</title>
-    <!-- Google Fonts & FontAwesome Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>14 Digits Order Generator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
             --bg-color: #0f172a;
             --card-bg: #1e293b;
-            --text-color: #f8fafc;
+            --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --accent: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --card-font-size: 20px;
+            --accent-color: #38bdf8;
+            --primary-btn: #2563eb;
+            --danger-color: #ef4444;
+            --border-color: #334155;
+            --font-size: 20px;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
         }
 
         .top-nav {
             width: 100%;
-            max-width: 600px;
+            max-width: 800px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            gap: 10px;
-            flex-wrap: nowrap;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
         }
+
         .control-group {
             display: flex;
-            align-items: center;
             gap: 10px;
+            align-items: center;
         }
+
         .select-box, .action-btn {
             background: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid #334155;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
             padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            outline: none;
-            font-size: 14px;
-        }
-
-        .deposit-trigger-btn {
-            background: #0284c7;
-            color: #ffffff;
-            font-weight: 600;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.2s;
-        }
-        .deposit-trigger-btn:hover {
-            background: #0369a1;
-        }
-
-        .user-dropdown-container {
-            position: relative;
-            display: none;
-        }
-
-        .avatar-box {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-            cursor: pointer;
-            transition: transform 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
-            color: #ffffff;
-            background-color: #6366f1;
-            overflow: hidden;
-            user-select: none;
-        }
-        .avatar-box:hover { transform: scale(1.05); }
-        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 48px;
-            right: 0;
-            background: var(--card-bg);
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 15px;
-            width: 240px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            display: none;
-            flex-direction: column;
-            gap: 12px;
-            z-index: 100;
-        }
-        .dropdown-menu.show { display: flex; }
-
-        .avatar-upload-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 10px;
-        }
-        .avatar-preview-wrapper { position: relative; cursor: pointer; }
-        .dropdown-avatar-box {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 22px;
-            color: #ffffff;
-            background-color: #6366f1;
-            overflow: hidden;
-            user-select: none;
-        }
-        .dropdown-avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-
-        .avatar-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.2s;
-            color: #fff;
-            font-size: 14px;
-        }
-        .avatar-preview-wrapper:hover .avatar-overlay { opacity: 1; }
-        .user-email-text {
-            font-size: 12px;
-            color: var(--text-muted);
-            word-break: break-all;
-            margin: 0;
-            text-align: center;
-        }
-
-        .setting-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            font-size: 12px;
-            color: var(--text-muted);
-            border-bottom: 1px solid #334155;
-            padding-bottom: 10px;
-        }
-        .setting-label { display: flex; justify-content: space-between; }
-        .slider-input { width: 100%; accent-color: var(--primary); cursor: pointer; }
-
-        .menu-btn {
-            background: #334155;
-            color: white;
-            border: none;
-            padding: 8px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: background 0.2s;
-        }
-        .menu-btn:hover { background: #475569; }
-        .remove-photo-btn {
-            background: transparent;
-            border: 1px solid #ef4444;
-            color: #ef4444;
-            font-size: 11px;
-            padding: 4px 8px;
-            margin-top: 4px;
-        }
-        .remove-photo-btn:hover { background: #ef4444; color: white; }
-        .logout-btn { background: #ef4444; }
-        .logout-btn:hover { background: #dc2626; }
-
-        .auth-container {
-            background: var(--card-bg);
-            border: 1px solid #334155;
-            border-radius: 16px;
-            padding: 30px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            margin-top: 20px;
-            box-sizing: border-box;
-        }
-        .auth-header { text-align: center; margin-bottom: 25px; }
-        .auth-header h2 { margin: 0 0 10px 0; font-size: 24px; }
-        .auth-header p { color: var(--text-muted); font-size: 14px; margin: 0; }
-
-        .input-group { margin-bottom: 15px; }
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            color: #fff;
-            box-sizing: border-box;
-            outline: none;
-        }
-        .input-group input:focus { border-color: var(--primary); }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-bottom: 10px;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); }
-        .btn-google { background: #ffffff; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-google:hover { background: #f1f5f9; }
-
-        .auth-toggle {
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 15px;
-            cursor: pointer;
         }
 
-        /* Modal / Pop-up for Deposit */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: var(--card-bg);
-            border: 1px solid #334155;
-            border-radius: 16px;
-            padding: 25px;
-            width: 90%;
-            max-width: 440px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-            position: relative;
-        }
-        .modal-close {
-            position: absolute;
-            top: 15px; right: 15px;
-            color: var(--text-muted);
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .address-box {
-            background: #0f172a;
-            border: 1px dashed var(--accent);
-            padding: 12px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 13px;
-            word-break: break-all;
-            margin: 15px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #38bdf8;
-        }
-        .copy-btn {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-            margin-left: 8px;
-            flex-shrink: 0;
-        }
-
-        #main-app { display: none; width: 100%; max-width: 600px; flex-direction: column; align-items: center; }
-        
         .vertical-container {
             display: flex;
             flex-direction: column;
             gap: 12px;
             width: 100%;
+            max-width: 800px;
         }
+
         .order-card {
-            background: var(--card-bg);
-            border: 1px dashed var(--accent);
-            border-radius: 12px;
-            padding: 14px 20px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            position: relative;
-            user-select: none;
-        }
-        .order-card:hover {
-            transform: translateY(-2px);
-            background: #243347;
-        }
-        .card-label { color: var(--accent); font-size: 13px; font-weight: 500; }
-        
-        .card-number { 
-            font-size: var(--card-font-size); 
-            font-weight: 700; 
-            letter-spacing: 1.5px; 
-            color: #fff; 
-            font-family: monospace; 
-            transition: font-size 0.2s ease, filter 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.1s ease, border-color 0.2s ease;
         }
 
-        /* Locked/Expired state formatting */
-        .order-card.locked {
-            border-color: #475569;
-            background: #182232;
+        .order-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
         }
-        .card-number.locked {
-            filter: blur(7px);
-            opacity: 0.25;
-            user-select: none;
+
+        .card-label {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .card-number {
+            font-size: var(--font-size);
+            font-weight: bold;
+            font-family: monospace;
+            color: var(--accent-color);
         }
 
         #toast {
             position: fixed;
             top: 20px;
-            background: var(--accent);
-            color: #000;
-            font-weight: bold;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10b981;
+            color: white;
             padding: 10px 20px;
-            border-radius: 30px;
+            border-radius: 5px;
             display: none;
-            z-index: 2000;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            z-index: 1000;
+        }
+
+        .auth-container, .modal-overlay {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 999;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary { background: var(--primary-btn); color: white; }
+        .btn-google { background: #ea4335; color: white; }
+
+        .status-banner {
+            background: #b45309;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+            max-width: 800px;
+            width: 100%;
         }
 
         .footer-tip {
             margin-top: 15px;
-            font-size: 12px;
             color: var(--text-muted);
+            font-size: 13px;
             text-align: center;
         }
 
-        .status-banner {
-            width: 100%;
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid var(--warning);
-            color: var(--warning);
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 15px;
-            text-align: center;
-            box-sizing: border-box;
-            display: none;
+        .user-dropdown-container {
+            position: relative;
         }
+
+        .avatar-box {
+            width: 35px;
+            height: 35px;
+            background: var(--primary-btn);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 45px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            text-align: left;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-btn:hover { background: var(--border-color); border-radius: 4px; }
+        .address-box { display: flex; gap: 5px; background: var(--bg-color); padding: 5px; border-radius: 4px; font-size: 11px; word-break: break-all; }
+        .copy-btn { background: var(--primary-btn); color: white; border: none; border-radius: 3px; cursor: pointer; }
     </style>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { 
-            getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged,
-            createUserWithEmailAndPassword, signInWithEmailAndPassword 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
-            getFirestore, doc, getDoc, setDoc 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyB4pKIXlL9sk7xIP7-Yrqs5yGfit1lE_YM",
-            authDomain: "order-generator-47380.firebaseapp.com",
-            projectId: "order-generator-47380",
-            storageBucket: "order-generator-47380.firebasestorage.app",
-            messagingSenderId: "984303991759",
-            appId: "1:984303991759:web:fa4c91d4a6cbb880b7f0ba",
-            measurementId: "G-4Q041S41LD"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
+    <script>
         const MY_BINANCE_USDT_ADDRESS = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F";
+        let currentDigits = 14;
 
-        const i18n = {
-            zh: {
-                titleSuffix: "位订单生成器",
-                loginTitle: "登录账号",
-                loginDesc: "请登录以使用订单号生成系统",
-                emailPlaceholder: "邮箱地址",
-                passPlaceholder: "密码",
-                loginBtn: "登录",
-                signUpBtn: "注册账号",
-                googleBtn: "使用 Google 账号登录",
-                toggleSignUp: "没有账号？点击注册",
-                toggleLogin: "已有账号？点击登录",
-                logout: "退出登录",
-                switchAcc: "切换账号",
-                removePhoto: "移除头像",
-                fontSize: "字体大小",
-                liveLabelPrefix: "● 实时生成 ",
-                liveLabelSuffix: " 位编号",
-                clickCopy: "(点击卡片复制，每秒自动更新)",
-                copied: "复制成功！",
-                alertEmpty: "请输入邮箱和密码",
-                errInvalid: "邮箱或密码错误，或账号不存在！",
-                errInUse: "该邮箱已被注册！",
-                errWeak: "密码长度至少需要6位！",
-                errDefault: "登录失败，请重试！",
-                depositTitle: "USDT 充值 / 续费",
-                depositDesc: "请转账 USDT 到以下地址，并上传转账截图。确认后将开通权限。",
-                usdtAddrLabel: "Binance USDT 地址 (BEP20/TRC20):",
-                copyAddr: "复制",
-                uploadProof: "上传转账截图 (Proof)",
-                submitProofBtn: "提交审核",
-                depositNavBtn: "USDT 充值",
-                expiredAlert: "使用期限已过期或未激活！请先充值 USDT 并在管理员确认后继续使用。",
-                proofSubmitted: "截图已成功提交，请等待管理员审核！",
-                bannerPending: "您的账号正在审核/未激活状态，请进行 USDT 充值以解锁功能。"
-            },
-            en: {
-                titleSuffix: "-Digit Order Generator",
-                loginTitle: "Sign In",
-                loginDesc: "Please sign in to access the order generator",
-                emailPlaceholder: "Email Address",
-                passPlaceholder: "Password",
-                loginBtn: "Sign In",
-                signUpBtn: "Create Account",
-                googleBtn: "Sign in with Google",
-                toggleSignUp: "No account? Register here",
-                toggleLogin: "Have an account? Sign in",
-                logout: "Log Out",
-                switchAcc: "Switch Account",
-                removePhoto: "Remove Photo",
-                fontSize: "Font Size",
-                liveLabelPrefix: "● Live ",
-                liveLabelSuffix: "-Digit Order ID",
-                clickCopy: "(Click card to copy, updates every second)",
-                copied: "Copied successfully!",
-                alertEmpty: "Please fill in email and password",
-                errInvalid: "Invalid email or password, or account does not exist!",
-                errInUse: "Email is already registered!",
-                errWeak: "Password should be at least 6 characters!",
-                errDefault: "Authentication failed. Please try again.",
-                depositTitle: "Deposit / Renew USDT",
-                depositDesc: "Transfer USDT to the address below and upload payment proof for verification.",
-                usdtAddrLabel: "Binance USDT Address (BEP20/TRC20):",
-                copyAddr: "Copy",
-                uploadProof: "Upload Payment Screenshot",
-                submitProofBtn: "Submit Payment Proof",
-                depositNavBtn: "Deposit USDT",
-                expiredAlert: "Membership expired or inactive! Please deposit USDT and wait for approval.",
-                proofSubmitted: "Payment proof submitted successfully! Please wait for owner confirmation.",
-                bannerPending: "Your account is inactive/pending. Please deposit USDT to unlock all features."
-            }
-        };
+        // ၁၅ ကြောင်းလုံးရှိ မီလီစက်ကန့် ဂဏန်းများ သီးခြားစီ ကွဲပြားစေရန် Offset Array
+        const msOffsets = Array.from({ length: 15 }, () => Math.floor(Math.random() * 999));
 
-        window.currentLang = "zh";
-        window.selectedDigits = 14;
-        let isSignUpMode = false;
-        let currentUser = null;
-        let userStatus = "pending";
-
-        // နှစ် + လ + ရက် + နာရီ + မိနစ် + စက်ကန့် + မီလီစက်ကန့် ပုံစံဖြင့် ဂဏန်းထုတ်လုပ်ခြင်း
-        window.generateDateTimeDigits = function(targetLength) {
-            const now = new Date();
-            const year = now.getFullYear().toString();
+        function generateDigitNumber(length, offset) {
+            const now = new Date(Date.now() + offset);
+            
+            const year = String(now.getFullYear()).slice(-2);
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
-            const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+            const millis = String(now.getMilliseconds()).padStart(3, '0');
 
-            // နှစ်၊ လ၊ ရက်၊ နာရီ၊ မိနစ်၊ စက်ကန့်၊ မီလီစက်ကန့် စာသား ပေါင်းစပ်မှု
-            let baseString = `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
+            // မီလီစက်ကန့် ပါဝင်သော အချိန်အခြေပြု ဂဏန်းစု
+            let timeStr = `${year}${month}${day}${hours}${minutes}${seconds}${millis}`;
 
-            // ရွေးချယ်ထားသော စာလုံးအရေအတွက် (targetLength) အတိုင်း ညှိယူခြင်း
-            if (baseString.length < targetLength) {
-                // အကယ်၍ လိုအပ်သော ဂဏန်းအရှည်ထက် နည်းနေပါက အနောက်တွင် Random ဂဏန်းဖြည့်ပေးခြင်း
-                while (baseString.length < targetLength) {
-                    baseString += Math.floor(Math.random() * 10).toString();
+            if (timeStr.length >= length) {
+                return timeStr.slice(0, length);
+            } else {
+                // ဂဏန်းအရှည် လိုအပ်ပါက အနောက်တွင် ရန်းဒန်းဂဏန်း ဖြည့်စွက်ခြင်း
+                const remainingDigits = length - timeStr.length;
+                let randomDigits = '';
+                for (let i = 0; i < remainingDigits; i++) {
+                    randomDigits += Math.floor(Math.random() * 10);
                 }
-            } else if (baseString.length > targetLength) {
-                // လိုအပ်သည်ထက် ပိုနေပါက ရှေ့ဘက်မှ ဖြတ်ယူခြင်း
-                baseString = baseString.substring(0, targetLength);
+                return timeStr + randomDigits;
             }
+        }
 
-            return baseString;
-        };
-
-        window.updateAllNumbers = function() {
-            const digits = window.selectedDigits;
-            document.querySelectorAll('.card-number').forEach(el => {
-                el.innerText = window.generateDateTimeDigits(digits);
+        function updateOrderNumbers() {
+            const numberElements = document.querySelectorAll('.card-number');
+            numberElements.forEach((el, index) => {
+                el.innerText = generateDigitNumber(currentDigits, msOffsets[index]);
             });
-        };
+        }
 
-        setInterval(() => {
-            if (currentUser) {
-                window.updateAllNumbers();
-            }
-        }, 1000);
+        function changeDigits(val) {
+            currentDigits = parseInt(val);
+            document.getElementById('page-title').innerText = `${currentDigits}位订单生成器`;
+            const labels = document.querySelectorAll('.card-label');
+            labels.forEach(label => {
+                label.innerText = `● 实时生成 ${currentDigits} 位编号`;
+            });
+            updateOrderNumbers();
+        }
 
-        window.copyToClipboard = function(text) {
-            if(userStatus !== 'approved') {
-                alert(i18n[window.currentLang].expiredAlert);
-                window.openDepositModal();
-                return;
-            }
+        function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 const toast = document.getElementById('toast');
                 toast.style.display = 'block';
-                setTimeout(() => { toast.style.display = 'none'; }, 2000);
+                setTimeout(() => { toast.style.display = 'none'; }, 1500);
             });
-        };
+        }
 
-        window.getErrorMessage = function(code) {
-            const t = i18n[window.currentLang];
-            switch (code) {
-                case 'auth/invalid-credential': return t.errInvalid;
-                case 'auth/email-already-in-use': return t.errInUse;
-                case 'auth/weak-password': return t.errWeak;
-                default: return t.errDefault;
-            }
-        };
-
-        window.updateUI = function() {
-            const t = i18n[window.currentLang];
-            const digits = window.selectedDigits;
-
-            document.getElementById('page-title').innerText = `${digits}${t.titleSuffix}`;
-            document.getElementById('auth-title').innerText = isSignUpMode ? t.signUpBtn : t.loginTitle;
-            document.getElementById('auth-desc').innerText = t.loginDesc;
-            document.getElementById('email-input').placeholder = t.emailPlaceholder;
-            document.getElementById('pass-input').placeholder = t.passPlaceholder;
-            document.getElementById('submit-btn').innerText = isSignUpMode ? t.signUpBtn : t.loginBtn;
-            document.getElementById('google-text').innerText = t.googleBtn;
-            document.getElementById('toggle-auth').innerText = isSignUpMode ? t.toggleLogin : t.toggleSignUp;
-            document.getElementById('logout-btn-text').innerText = t.logout;
-            document.getElementById('switch-acc-text').innerText = t.switchAcc;
-            document.getElementById('remove-photo-text').innerText = t.removePhoto;
-            document.getElementById('font-size-label').innerText = t.fontSize;
-            document.getElementById('footer-tip').innerText = t.clickCopy;
-            document.getElementById('toast').innerText = t.copied;
-
-            document.getElementById('deposit-nav-btn-text').innerText = t.depositNavBtn;
-            document.getElementById('deposit-title').innerText = t.depositTitle;
-            document.getElementById('deposit-desc').innerText = t.depositDesc;
-            document.getElementById('usdt-label').innerText = t.usdtAddrLabel;
-            document.getElementById('copy-addr-btn').innerText = t.copyAddr;
-            document.getElementById('submit-proof-btn').innerText = t.submitProofBtn;
-            document.getElementById('status-banner').innerText = t.bannerPending;
-            
-            document.querySelectorAll('.card-label').forEach(el => {
-                el.innerText = `${t.liveLabelPrefix}${digits}${t.liveLabelSuffix}`;
-            });
-
-            if(window.updateAllNumbers) window.updateAllNumbers();
-        };
-
-        window.changeLanguage = function(lang) {
-            window.currentLang = lang;
-            window.updateUI();
-        };
-
-        window.changeDigits = function(digits) {
-            window.selectedDigits = parseInt(digits);
-            window.updateUI();
-        };
-
-        window.renderAvatar = function() {
-            if(!currentUser) return;
-            
-            const savedAvatar = localStorage.getItem('custom_avatar_' + currentUser.uid);
-            const removeFlag = localStorage.getItem('remove_photo_' + currentUser.uid);
-            
-            let finalPhoto = null;
-            if(!removeFlag && savedAvatar) {
-                finalPhoto = savedAvatar;
-            } else if(!removeFlag && currentUser.photoURL) {
-                finalPhoto = currentUser.photoURL;
-            }
-
-            const initialLetter = (currentUser.email ? currentUser.email.charAt(0) : 'U').toUpperCase();
-            const removeBtn = document.getElementById('remove-photo-btn');
-
-            if (finalPhoto) {
-                document.getElementById('profile-btn').innerHTML = `<img src="${finalPhoto}" alt="Avatar">`;
-                document.getElementById('dropdown-avatar-img').innerHTML = `<img src="${finalPhoto}" alt="Avatar">`;
-                removeBtn.style.display = 'flex';
+        function changeLanguage(lang) {
+            if (lang === 'en') {
+                document.getElementById('auth-title').innerText = 'Account Login';
+                document.getElementById('auth-desc').innerText = 'Please login to use order generator';
+                document.getElementById('submit-btn').innerText = 'Login';
+                document.getElementById('google-text').innerText = 'Login with Google';
+                document.getElementById('status-banner').innerText = 'Your account is unverified. Please deposit USDT to activate.';
+                document.getElementById('footer-tip').innerText = '(Click card to copy, auto-updates every second)';
             } else {
-                document.getElementById('profile-btn').innerHTML = initialLetter;
-                document.getElementById('dropdown-avatar-img').innerHTML = initialLetter;
-                removeBtn.style.display = 'none';
+                document.getElementById('auth-title').innerText = '登录账号';
+                document.getElementById('auth-desc').innerText = '请登录以使用订单号生成系统';
+                document.getElementById('submit-btn').innerText = '登录';
+                document.getElementById('google-text').innerText = '使用 Google 账号登录';
+                document.getElementById('status-banner').innerText = '您的账号正在审核/未激活状态，请进行 USDT 充值以解锁功能。';
+                document.getElementById('footer-tip').innerText = '(点击卡片复制，每秒自动更新)';
             }
-        };
-
-        window.openDepositModal = function() {
-            document.getElementById('deposit-modal').style.display = 'flex';
-        };
-
-        window.closeDepositModal = function() {
-            document.getElementById('deposit-modal').style.display = 'none';
-        };
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // ၁ စက္ကန့်လျှင် တကြိမ် အလိုအလျောက် ပြောင်းလဲပေးခြင်း
+            setInterval(updateOrderNumbers, 1000);
+            updateOrderNumbers();
+
+            const profileBtn = document.getElementById('profile-btn');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+            if (profileBtn) {
+                profileBtn.addEventListener('click', () => {
+                    dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
+                });
+            }
+
+            const fontSlider = document.getElementById('font-size-slider');
+            if (fontSlider) {
+                fontSlider.addEventListener('input', (e) => {
+                    const val = e.target.value + 'px';
+                    document.documentElement.style.setProperty('--font-size', val);
+                    document.getElementById('font-size-val').innerText = val;
+                });
+            }
+
+            // Demo Auth Switch
+            let isLoggedIn = true; 
             const authCard = document.getElementById('auth-card');
             const mainApp = document.getElementById('main-app');
             const profileContainer = document.getElementById('profile-container');
-            const emailInput = document.getElementById('email-input');
-            const passInput = document.getElementById('pass-input');
-            const submitBtn = document.getElementById('submit-btn');
-            const toggleAuth = document.getElementById('toggle-auth');
+            const depositNavBtn = document.getElementById('deposit-nav-btn');
 
-            toggleAuth.addEventListener('click', () => {
-                isSignUpMode = !isSignUpMode;
-                window.updateUI();
-            });
-
-            submitBtn.addEventListener('click', () => {
-                const email = emailInput.value;
-                const pass = passInput.value;
-                if(!email || !pass) return alert(i18n[window.currentLang].alertEmpty);
-
-                if(isSignUpMode) {
-                    createUserWithEmailAndPassword(auth, email, pass)
-                        .catch(e => alert(window.getErrorMessage(e.code)));
-                } else {
-                    signInWithEmailAndPassword(auth, email, pass)
-                        .catch(e => alert(window.getErrorMessage(e.code)));
-                }
-            });
-
-            document.getElementById('google-btn').addEventListener('click', () => {
-                signInWithPopup(auth, provider).catch(e => alert(window.getErrorMessage(e.code)));
-            });
-
-            document.getElementById('logout-btn').addEventListener('click', () => {
-                signOut(auth);
-                document.getElementById('dropdown-menu').classList.remove('show');
-            });
-
-            document.getElementById('switch-acc-btn').addEventListener('click', () => {
-                signOut(auth);
-                document.getElementById('dropdown-menu').classList.remove('show');
-            });
-
-            document.getElementById('remove-photo-btn').addEventListener('click', () => {
-                if (currentUser) {
-                    localStorage.removeItem('custom_avatar_' + currentUser.uid);
-                    localStorage.setItem('remove_photo_' + currentUser.uid, 'true');
-                    window.renderAvatar();
-                }
-            });
-
-            document.getElementById('profile-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                document.getElementById('dropdown-menu').classList.toggle('show');
-            });
-
-            document.getElementById('dropdown-menu').addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-
-            document.addEventListener('click', () => {
-                document.getElementById('dropdown-menu').classList.remove('show');
-            });
-
-            document.getElementById('deposit-nav-btn').addEventListener('click', () => {
-                window.openDepositModal();
-            });
-
-            document.getElementById('modal-close-btn').addEventListener('click', () => {
-                window.closeDepositModal();
-            });
-
-            const avatarUpload = document.getElementById('avatar-upload');
-            avatarUpload.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if(file && currentUser) {
-                    const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        const customImgData = evt.target.result;
-                        localStorage.setItem('custom_avatar_' + currentUser.uid, customImgData);
-                        localStorage.removeItem('remove_photo_' + currentUser.uid);
-                        window.renderAvatar();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            document.getElementById('copy-addr-btn').addEventListener('click', () => {
-                navigator.clipboard.writeText(MY_BINANCE_USDT_ADDRESS).then(() => {
-                    alert(i18n[window.currentLang].copied);
-                });
-            });
-
-            document.getElementById('submit-proof-btn').addEventListener('click', async () => {
-                const proofInput = document.getElementById('proof-file');
-                if(!proofInput.files || proofInput.files.length === 0) {
-                    return alert("Please select a screenshot file first!");
-                }
-                if(currentUser) {
-                    await setDoc(doc(db, "users", currentUser.uid), {
-                        email: currentUser.email,
-                        status: "pending",
-                        submittedAt: new Date().toISOString()
-                    }, { merge: true });
-
-                    alert(i18n[window.currentLang].proofSubmitted);
-                    window.closeDepositModal();
-                    location.reload();
-                }
-            });
-
-            const fontSlider = document.getElementById('font-size-slider');
-            const fontSizeVal = document.getElementById('font-size-val');
-
-            fontSlider.addEventListener('input', (e) => {
-                const size = e.target.value + 'px';
-                document.documentElement.style.setProperty('--card-font-size', size);
-                fontSizeVal.innerText = size;
-                localStorage.setItem('custom_font_size', e.target.value);
-            });
-
-            const savedFontSize = localStorage.getItem('custom_font_size');
-            if(savedFontSize) {
-                fontSlider.value = savedFontSize;
-                document.documentElement.style.setProperty('--card-font-size', savedFontSize + 'px');
-                fontSizeVal.innerText = savedFontSize + 'px';
-            }
-
-            async function checkUserSubscription(user) {
-                const userRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(userRef);
-
-                if (docSnap.exists()) {
-                    userStatus = docSnap.data().status || "pending";
-                } else {
-                    userStatus = "pending";
-                    await setDoc(userRef, {
-                        email: user.email,
-                        status: "pending",
-                        createdAt: new Date().toISOString()
-                    });
-                }
-
+            if (isLoggedIn) {
                 authCard.style.display = 'none';
-                mainApp.style.display = 'flex';
-
-                const statusBanner = document.getElementById('status-banner');
-
-                if (userStatus === "approved") {
-                    statusBanner.style.display = 'none';
-                    document.querySelectorAll('.order-card').forEach(el => el.classList.remove('locked'));
-                    document.querySelectorAll('.card-number').forEach(el => el.classList.remove('locked'));
-                } else {
-                    statusBanner.style.display = 'block';
-                    document.querySelectorAll('.order-card').forEach(el => el.classList.add('locked'));
-                    document.querySelectorAll('.card-number').forEach(el => el.classList.add('locked'));
-                }
-                window.updateAllNumbers();
+                mainApp.style.display = 'block';
+                profileContainer.style.display = 'block';
+                depositNavBtn.style.display = 'inline-flex';
             }
-
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUser = user;
-                    profileContainer.style.display = 'block';
-                    document.getElementById('deposit-nav-btn').style.display = 'flex';
-                    document.getElementById('user-email').innerText = user.email;
-                    document.getElementById('binance-address').innerText = MY_BINANCE_USDT_ADDRESS;
-
-                    window.renderAvatar();
-                    await checkUserSubscription(user);
-                } else {
-                    currentUser = null;
-                    authCard.style.display = 'block';
-                    mainApp.style.display = 'none';
-                    profileContainer.style.display = 'none';
-                    document.getElementById('deposit-nav-btn').style.display = 'none';
-                }
-            });
         });
     </script>
 </head>
@@ -910,7 +423,6 @@
             您的账号正在审核/未激活状态，请进行 USDT 充值以解锁功能。
         </div>
 
-        <!-- အလျားလိုက် ၁၅ ကြောင်း အတန်းလိုက် Card များ -->
         <div class="vertical-container">
             <div class="order-card" onclick="copyToClipboard(this.querySelector('.card-number').innerText)">
                 <span class="card-label">● 实时生成 14 位编号</span>
@@ -988,7 +500,7 @@
                 <label id="usdt-label">Binance USDT 地址 (BEP20/TRC20):</label>
                 <div class="address-box">
                     <span id="binance-address">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span>
-                    <button class="copy-btn" id="copy-addr-btn">复制</button>
+                    <button class="copy-btn" id="copy-addr-btn" onclick="copyToClipboard(MY_BINANCE_USDT_ADDRESS)">复制</button>
                 </div>
             </div>
 
