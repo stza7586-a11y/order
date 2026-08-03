@@ -224,7 +224,6 @@
         let currentDigits = 14;
         let currentLang = 'zh';
 
-        // ၁၅ ကြောင်းလုံးရှိ မီလီစက်ကန့် ဂဏန်းများ သီးခြားစီ ကွဲပြားစေရန် Offset Array
         const msOffsets = Array.from({ length: 15 }, () => Math.floor(Math.random() * 999));
 
         function generateDigitNumber(length, offset) {
@@ -294,19 +293,12 @@
             updateTitlesAndLabels();
 
             if (lang === 'en') {
-                // Toast
                 document.getElementById('toast').innerText = 'Copied successfully!';
-                
-                // Top Nav
                 document.getElementById('deposit-nav-btn-text').innerText = 'USDT Deposit';
-                
-                // Dropdown Menu
                 document.getElementById('remove-photo-text').innerText = 'Remove Photo';
                 document.getElementById('font-size-label').innerText = 'Font Size';
                 document.getElementById('switch-acc-text').innerText = 'Switch Account';
                 document.getElementById('logout-btn-text').innerText = 'Logout';
-                
-                // Auth System Card
                 document.getElementById('auth-title').innerText = 'Account Login';
                 document.getElementById('auth-desc').innerText = 'Please login to use order generator';
                 document.getElementById('email-input').placeholder = 'Email Address';
@@ -314,12 +306,8 @@
                 document.getElementById('submit-btn').innerText = 'Login';
                 document.getElementById('google-text').innerText = 'Login with Google';
                 document.getElementById('toggle-auth').innerText = 'No account? Click to register';
-
-                // Main Dashboard
                 document.getElementById('status-banner').innerText = 'Your account is under review / unverified. Please deposit USDT to activate features.';
                 document.getElementById('footer-tip').innerText = '(Click card to copy, auto-updates every second)';
-
-                // Deposit Modal
                 document.getElementById('deposit-title').innerText = 'USDT Deposit / Renewal';
                 document.getElementById('deposit-desc').innerText = 'Please transfer USDT to the following address and upload payment proof. Access will be unlocked after verification.';
                 document.getElementById('usdt-label').innerText = 'Binance USDT Address (BEP20/TRC20):';
@@ -327,19 +315,12 @@
                 document.getElementById('upload-proof-label').innerText = 'Upload Transfer Proof:';
                 document.getElementById('submit-proof-btn').innerText = 'Submit for Review';
             } else {
-                // Toast
                 document.getElementById('toast').innerText = '复制成功！';
-                
-                // Top Nav
                 document.getElementById('deposit-nav-btn-text').innerText = 'USDT 充值';
-                
-                // Dropdown Menu
                 document.getElementById('remove-photo-text').innerText = '移除头像';
                 document.getElementById('font-size-label').innerText = '字体大小';
                 document.getElementById('switch-acc-text').innerText = '切换账号';
                 document.getElementById('logout-btn-text').innerText = '退出登录';
-                
-                // Auth System Card
                 document.getElementById('auth-title').innerText = '登录账号';
                 document.getElementById('auth-desc').innerText = '请登录以使用订单号生成系统';
                 document.getElementById('email-input').placeholder = '邮箱地址';
@@ -347,12 +328,8 @@
                 document.getElementById('submit-btn').innerText = '登录';
                 document.getElementById('google-text').innerText = '使用 Google 账号登录';
                 document.getElementById('toggle-auth').innerText = '没有账号？点击注册';
-
-                // Main Dashboard
                 document.getElementById('status-banner').innerText = '您的账号正在审核/未激活状态，请进行 USDT 充值以解锁功能。';
                 document.getElementById('footer-tip').innerText = '(点击卡片复制，每秒自动更新)';
-
-                // Deposit Modal
                 document.getElementById('deposit-title').innerText = 'USDT 充值 / 续费';
                 document.getElementById('deposit-desc').innerText = '请转账 USDT 到以下地址，并上传转账截图。确认后将开通权限。';
                 document.getElementById('usdt-label').innerText = 'Binance USDT 地址 (BEP20/TRC20):';
@@ -362,17 +339,46 @@
             }
         }
 
+        function setLoginState(isLogged) {
+            const authCard = document.getElementById('auth-card');
+            const mainApp = document.getElementById('main-app');
+            const profileContainer = document.getElementById('profile-container');
+            const depositNavBtn = document.getElementById('deposit-nav-btn');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+
+            if (isLogged) {
+                authCard.style.display = 'none';
+                mainApp.style.display = 'block';
+                profileContainer.style.display = 'block';
+                depositNavBtn.style.display = 'inline-flex';
+            } else {
+                authCard.style.display = 'block';
+                mainApp.style.display = 'none';
+                profileContainer.style.display = 'none';
+                depositNavBtn.style.display = 'none';
+                dropdownMenu.style.display = 'none';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             setInterval(updateOrderNumbers, 1000);
             updateOrderNumbers();
 
             const profileBtn = document.getElementById('profile-btn');
             const dropdownMenu = document.getElementById('dropdown-menu');
+            
             if (profileBtn) {
-                profileBtn.addEventListener('click', () => {
+                profileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
                 });
             }
+
+            document.addEventListener('click', (e) => {
+                if (dropdownMenu && !dropdownMenu.contains(e.target) && e.target !== profileBtn) {
+                    dropdownMenu.style.display = 'none';
+                }
+            });
 
             const fontSlider = document.getElementById('font-size-slider');
             if (fontSlider) {
@@ -383,18 +389,27 @@
                 });
             }
 
-            let isLoggedIn = true; 
-            const authCard = document.getElementById('auth-card');
-            const mainApp = document.getElementById('main-app');
-            const profileContainer = document.getElementById('profile-container');
-            const depositNavBtn = document.getElementById('deposit-nav-btn');
+            // Auth Logic Handling (Login, Logout & Switch Account)
+            const submitBtn = document.getElementById('submit-btn');
+            const googleBtn = document.getElementById('google-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const switchAccBtn = document.getElementById('switch-acc-btn');
 
-            if (isLoggedIn) {
-                authCard.style.display = 'none';
-                mainApp.style.display = 'block';
-                profileContainer.style.display = 'block';
-                depositNavBtn.style.display = 'inline-flex';
+            if (submitBtn) {
+                submitBtn.addEventListener('click', () => setLoginState(true));
             }
+            if (googleBtn) {
+                googleBtn.addEventListener('click', () => setLoginState(true));
+            }
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => setLoginState(false));
+            }
+            if (switchAccBtn) {
+                switchAccBtn.addEventListener('click', () => setLoginState(false));
+            }
+
+            // Default State
+            setLoginState(true);
         });
     </script>
 </head>
